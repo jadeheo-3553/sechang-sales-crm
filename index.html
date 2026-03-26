@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영업 마스터 — 디자인세창</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0d0f14;--surface:#1a1e2a;--surface2:#222736;
+  --border:#3a4260;--accent:#00d4ff;
+  --text:#f0f4ff;--text2:#b0bcdb;--text3:#7a8ab0;
+  --red:#ff5577;--green:#44e87a;--yellow:#ffb830;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;}
+
+/* ── 로그인 화면 ── */
+#loginWrap{width:100%;max-width:420px;padding:24px;}
+.login-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:52px 44px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.login-logo{
+  font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;
+  color:var(--accent);letter-spacing:3px;text-align:center;margin-bottom:6px;
+}
+.login-logo em{color:var(--text3);font-style:normal;}
+.login-co{text-align:center;font-size:13px;color:var(--text3);
+  font-family:'IBM Plex Mono',monospace;margin-bottom:44px;letter-spacing:1px;}
+.field-label{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px;display:block;}
+.field-input{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:13px 16px;color:var(--text);font-size:15px;
+  font-family:'Noto Sans KR',sans-serif;outline:none;
+  transition:border-color .2s;margin-bottom:18px;
+}
+.field-input:focus{border-color:var(--accent);}
+.field-input::placeholder{color:var(--text3);}
+.login-btn{
+  width:100%;background:var(--accent);color:#000;border:none;
+  border-radius:10px;padding:14px;font-size:16px;font-weight:700;
+  font-family:'Noto Sans KR',sans-serif;cursor:pointer;
+  transition:opacity .2s,transform .1s;margin-top:4px;
+}
+.login-btn:hover{opacity:.88;transform:translateY(-1px);}
+.login-btn:active{transform:translateY(0);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.err-msg{
+  background:rgba(255,85,119,.12);border:1px solid rgba(255,85,119,.3);
+  color:var(--red);border-radius:8px;padding:11px 16px;
+  font-size:14px;margin-top:16px;display:none;line-height:1.6;
+}
+.loading-msg{
+  text-align:center;color:var(--text3);font-size:14px;
+  margin-top:16px;display:none;font-family:'IBM Plex Mono',monospace;
+}
+.login-footer{text-align:center;font-size:12px;color:var(--text3);margin-top:32px;line-height:1.8;}
+
+/* ── 앱 프레임 (로그인 후) ── */
+#appFrame{
+  display:none;position:fixed;inset:0;width:100%;height:100%;
+  border:none;background:var(--bg);
+}
+
+/* ── 로딩 오버레이 ── */
+#loadingOverlay{
+  display:none;position:fixed;inset:0;background:var(--bg);
+  z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:20px;
+}
+#loadingOverlay.show{display:flex;}
+.spinner{
+  width:44px;height:44px;border:3px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--text2);}
+</style>
+</head>
+<body>
+
+<!-- ── 로그인 화면 ── -->
+<div id="loginWrap">
+  <div class="login-card">
+    <div class="login-logo">SALES<em>/</em>MASTER</div>
+    <div class="login-co">디자인세창 영업 분석 시스템</div>
+
+    <label class="field-label" for="uid">아이디</label>
+    <input class="field-input" type="text" id="uid" placeholder="아이디 입력"
+      autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false">
+
+    <label class="field-label" for="pw">비밀번호</label>
+    <input class="field-input" type="password" id="pw" placeholder="비밀번호 입력"
+      autocomplete="current-password">
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">로그인</button>
+
+    <div class="err-msg" id="errMsg"></div>
+    <div class="loading-msg" id="loadingMsg">⟳ 인증 중...</div>
+
+    <div class="login-footer">
+      접속 문의: 관리자에게 연락하세요
+    </div>
+  </div>
+</div>
+
+<!-- ── 앱 iframe (로그인 성공 후 동적 삽입) ── -->
+<iframe id="appFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals allow-popups"></iframe>
+
+<!-- ── 로딩 오버레이 ── -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">앱 로딩 중...</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// ★ Apps Script 배포 URL 여기에 붙여넣기 ★
+const SCRIPT_URL = '/AKfycbzzIrBAeI5L40e-HHglmhiKo5cGUdIaAWPIYXIl3mCngeLZaeb4Nrg-YLC4-PUI0X9R/exec';
+// ════════════════════════════════════════════════════
+
+const SESSION_KEY = 'sm_v1_session';
+let currentToken = null;
+
+// ── 페이지 로드 시 기존 세션 확인 ──
+window.addEventListener('load', async function() {
+  const saved = getSavedSession();
+  if (saved) {
+    showLoadingOverlay('세션 확인 중...');
+    try {
+      const res = await fetchGet('check', saved.token);
+      if (res.ok) {
+        currentToken = saved.token;
+        await loadApp(saved);
+        return;
+      }
+    } catch(e) {}
+    clearSession();
+    hideLoadingOverlay();
+  }
+});
+
+// ── 로그인 버튼 ──
+async function doLogin() {
+  const uid = document.getElementById('uid').value.trim();
+  const pw  = document.getElementById('pw').value;
+  if (!uid || !pw) { showErr('아이디와 비밀번호를 입력하세요.'); return; }
+
+  setBusy(true);
+  try {
+    const res = await fetchPost({ action: 'login', username: uid, password: pw });
+    if (res.ok) {
+      currentToken = res.token;
+      saveSession(res);
+      await loadApp(res);
+    } else {
+      showErr(res.error || '로그인 실패');
+    }
+  } catch(e) {
+    showErr('서버 연결 오류: ' + e.message + '\n\nSCRIPT_URL을 확인하세요.');
+  }
+  setBusy(false);
+}
+
+// ── 앱 HTML 로드 후 iframe에 주입 ──
+async function loadApp(session) {
+  showLoadingOverlay('앱 불러오는 중...');
+  try {
+    // 앱 HTML을 서버에서 가져옴
+    const url = SCRIPT_URL + '?action=app&token=' + encodeURIComponent(session.token);
+    const resp = await fetch(url);
+    const html = await resp.text();
+
+    if (!html || html.includes('"ok":false')) {
+      throw new Error('앱 로드 실패. 다시 로그인하세요.');
+    }
+
+    // iframe에 주입
+    const frame = document.getElementById('appFrame');
+    frame.style.display = 'block';
+    document.getElementById('loginWrap').style.display = 'none';
+
+    const doc = frame.contentDocument || frame.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+
+    // iframe에 세션 정보 전달
+    frame.contentWindow.addEventListener('load', function() {
+      frame.contentWindow.postMessage({
+        type: 'session',
+        session: {
+          username: session.username,
+          name: session.name,
+          isAdmin: session.isAdmin,
+          token: session.token
+        },
+        scriptUrl: SCRIPT_URL
+      }, '*');
+    });
+
+    hideLoadingOverlay();
+  } catch(e) {
+    hideLoadingOverlay();
+    clearSession();
+    document.getElementById('loginWrap').style.display = 'flex';
+    showErr('앱 로드 오류: ' + e.message);
+  }
+}
+
+// ── iframe에서 로그아웃 메시지 수신 ──
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'logout') {
+    clearSession();
+    document.getElementById('appFrame').style.display = 'none';
+    document.getElementById('appFrame').src = '';
+    document.getElementById('loginWrap').style.display = 'flex';
+    document.getElementById('uid').value = '';
+    document.getElementById('pw').value = '';
+  }
+});
+
+// ── 헬퍼 함수들 ──
+async function fetchGet(action, token) {
+  const url = SCRIPT_URL + '?action=' + action + '&token=' + encodeURIComponent(token);
+  const r = await fetch(url);
+  return r.json();
+}
+
+async function fetchPost(body) {
+  const r = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+function showErr(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('loadingMsg').style.display = 'none';
+}
+function setBusy(busy) {
+  document.getElementById('loginBtn').disabled = busy;
+  document.getElementById('loadingMsg').style.display = busy ? 'block' : 'none';
+  document.getElementById('errMsg').style.display = busy ? 'none' : (document.getElementById('errMsg').textContent ? 'block' : 'none');
+}
+function showLoadingOverlay(msg) {
+  document.getElementById('loadingText').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoadingOverlay() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+function saveSession(data) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+    token: data.token, username: data.username,
+    name: data.name, isAdmin: data.isAdmin,
+    expiry: data.expiry
+  }));
+}
+function getSavedSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+    if (!s || !s.token) return null;
+    if (s.expiry && new Date().getTime() > s.expiry) { clearSession(); return null; }
+    return s;
+  } catch(e) { return null; }
+}
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); currentToken = null; }
+
+// ── Enter 키 로그인 ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('loginWrap').style.display !== 'none') {
+    doLogin();
+  }
+});
+</script>
+</body>
+</html>
