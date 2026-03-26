@@ -108,7 +108,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 </div>
 
 <!-- ── 앱 iframe (로그인 성공 후 동적 삽입) ── -->
-<iframe id="appFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals allow-popups"></iframe>
+<iframe id="appFrame" sandbox="allow-scripts allow-forms allow-downloads allow-modals allow-popups allow-same-origin"></iframe>
 
 <!-- ── 로딩 오버레이 ── -->
 <div id="loadingOverlay">
@@ -169,38 +169,41 @@ async function doLogin() {
 async function loadApp(session) {
   showLoadingOverlay('앱 불러오는 중...');
   try {
-    // 앱 HTML을 서버에서 가져옴
     const url = SCRIPT_URL + '?action=app&token=' + encodeURIComponent(session.token);
     const resp = await fetch(url);
-    const html = await resp.text();
+    const htmlText = await resp.text();
 
-    if (!html || html.includes('"ok":false')) {
+    if (!htmlText || htmlText.includes('"ok":false')) {
       throw new Error('앱 로드 실패. 다시 로그인하세요.');
     }
 
-    // iframe에 주입
+    // Blob URL 방식으로 iframe에 주입 (doc.write 특수문자 오류 방지)
+    const blob = new Blob([htmlText], {type: 'text/html; charset=utf-8'});
+    const blobUrl = URL.createObjectURL(blob);
+
     const frame = document.getElementById('appFrame');
     frame.style.display = 'block';
     document.getElementById('loginWrap').style.display = 'none';
 
-    const doc = frame.contentDocument || frame.contentWindow.document;
-    doc.open(); doc.write(html); doc.close();
+    // iframe 로드 완료 후 세션 전달
+    frame.onload = function() {
+      try {
+        frame.contentWindow.postMessage({
+          type: 'session',
+          session: {
+            username: session.username,
+            name: session.name,
+            isAdmin: session.isAdmin,
+            token: session.token
+          },
+          scriptUrl: SCRIPT_URL
+        }, '*');
+      } catch(e) {}
+      URL.revokeObjectURL(blobUrl);
+      hideLoadingOverlay();
+    };
+    frame.src = blobUrl;
 
-    // iframe에 세션 정보 전달
-    frame.contentWindow.addEventListener('load', function() {
-      frame.contentWindow.postMessage({
-        type: 'session',
-        session: {
-          username: session.username,
-          name: session.name,
-          isAdmin: session.isAdmin,
-          token: session.token
-        },
-        scriptUrl: SCRIPT_URL
-      }, '*');
-    });
-
-    hideLoadingOverlay();
   } catch(e) {
     hideLoadingOverlay();
     clearSession();
