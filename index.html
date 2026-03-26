@@ -155,10 +155,37 @@ async function loadApp(session) {
 
     const finalHtml = htmlText.replace('</head>', sessionScript + '</head>');
 
-    // 현재 페이지를 앱으로 교체
-    document.open('text/html', 'replace');
-    document.write(finalHtml);
-    document.close();
+    // 현재 페이지를 앱으로 교체 (document.write 없이)
+    // head 내용 교체
+    const parser = new DOMParser();
+    const appDoc = parser.parseFromString(finalHtml, 'text/html');
+
+    // body 교체
+    document.body.innerHTML = appDoc.body.innerHTML;
+
+    // head의 style 태그들 복사
+    appDoc.querySelectorAll('head style').forEach(function(el) {
+      document.head.appendChild(el.cloneNode(true));
+    });
+
+    // 스크립트 순서대로 동적 로딩
+    const scripts = Array.from(appDoc.querySelectorAll('head script, body script'));
+    function loadNextScript(i) {
+      if (i >= scripts.length) { hideOverlay(); return; }
+      const orig = scripts[i];
+      const s = document.createElement('script');
+      if (orig.src) {
+        s.src = orig.src;
+        s.onload = function() { loadNextScript(i+1); };
+        s.onerror = function() { loadNextScript(i+1); };
+        document.head.appendChild(s);
+      } else {
+        s.textContent = orig.textContent;
+        document.head.appendChild(s);
+        loadNextScript(i+1);
+      }
+    }
+    loadNextScript(0);
 
   } catch(e) {
     hideOverlay();
