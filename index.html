@@ -191,85 +191,47 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 </style>
-
 <style>
-/* ── 로그인 오버레이 ── */
-#smLoginOverlay{
-  display:flex;position:fixed;inset:0;background:#0d0f14;
-  z-index:99999;align-items:center;justify-content:center;
-  font-family:'Noto Sans KR',sans-serif;
-}
+#smLoginOverlay{display:flex;position:fixed;inset:0;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
 #smLoginOverlay.hidden{display:none;}
-.sm-lcard{
-  background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;
-  padding:52px 44px;max-width:420px;width:94%;
-  box-shadow:0 20px 60px rgba(0,0,0,.5);
-}
-.sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;
-  color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
+.sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
 .sm-llogo em{color:#7a8ab0;font-style:normal;}
-.sm-lco{text-align:center;font-size:13px;color:#7a8ab0;
-  font-family:'IBM Plex Mono',monospace;margin-bottom:40px;letter-spacing:1px;}
+.sm-lco{text-align:center;font-size:13px;color:#7a8ab0;font-family:'IBM Plex Mono',monospace;margin-bottom:40px;letter-spacing:1px;}
 .sm-llabel{font-size:13px;font-weight:600;color:#b0bcdb;margin-bottom:8px;display:block;}
-.sm-linput{
-  width:100%;background:#222736;border:1px solid #3a4260;border-radius:10px;
-  padding:13px 16px;color:#f0f4ff;font-size:15px;
-  font-family:'Noto Sans KR',sans-serif;outline:none;
-  transition:border-color .2s;margin-bottom:18px;box-sizing:border-box;
-}
+.sm-linput{width:100%;background:#222736;border:1px solid #3a4260;border-radius:10px;padding:13px 16px;color:#f0f4ff;font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .2s;margin-bottom:18px;box-sizing:border-box;}
 .sm-linput:focus{border-color:#00d4ff;}
 .sm-linput::placeholder{color:#7a8ab0;}
-.sm-lbtn{
-  width:100%;background:#00d4ff;color:#000;border:none;border-radius:10px;
-  padding:14px;font-size:16px;font-weight:700;
-  font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:opacity .2s;
-}
+.sm-lbtn{width:100%;background:#00d4ff;color:#000;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:opacity .2s;}
 .sm-lbtn:hover{opacity:.88;}
 .sm-lbtn:disabled{opacity:.5;cursor:not-allowed;}
-.sm-lerr{
-  background:rgba(255,85,119,.12);border:1px solid rgba(255,85,119,.3);
-  color:#ff5577;border-radius:8px;padding:11px 16px;font-size:14px;
-  margin-top:14px;display:none;line-height:1.6;white-space:pre-line;
-  box-sizing:border-box;
-}
-.sm-lmsg{text-align:center;color:#7a8ab0;font-size:14px;
-  margin-top:14px;display:none;font-family:'IBM Plex Mono',monospace;}
-/* 로딩 스피너 */
-#smLoadingOv{
-  display:none;position:fixed;inset:0;background:#0d0f14;
-  z-index:99998;align-items:center;justify-content:center;flex-direction:column;gap:20px;
-}
+.sm-lerr{background:rgba(255,85,119,.12);border:1px solid rgba(255,85,119,.3);color:#ff5577;border-radius:8px;padding:11px 16px;font-size:14px;margin-top:14px;display:none;line-height:1.6;white-space:pre-line;box-sizing:border-box;}
+.sm-lmsg{text-align:center;color:#7a8ab0;font-size:14px;margin-top:14px;display:none;font-family:'IBM Plex Mono',monospace;}
+#smLoadingOv{display:none;position:fixed;inset:0;background:#0d0f14;z-index:99998;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
 #smLoadingOv.show{display:flex;}
-.sm-spinner{width:44px;height:44px;border:3px solid #3a4260;
-  border-top-color:#00d4ff;border-radius:50%;animation:smSpin .8s linear infinite;}
+.sm-spinner{width:44px;height:44px;border:3px solid #3a4260;border-top-color:#00d4ff;border-radius:50%;animation:smSpin .8s linear infinite;}
 @keyframes smSpin{to{transform:rotate(360deg);}}
 .sm-stxt{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#b0bcdb;}
 </style>
 </head>
-
-<!-- ══ 로그인 오버레이 ══ -->
+<body>
 <div id="smLoginOverlay">
   <div class="sm-lcard">
     <div class="sm-llogo">SALES<em>/</em>MASTER</div>
     <div class="sm-lco">디자인세창 영업 분석 시스템</div>
     <label class="sm-llabel" for="smUid">아이디</label>
-    <input class="sm-linput" type="text" id="smUid" placeholder="아이디 입력"
-      autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false">
+    <input class="sm-linput" type="text" id="smUid" placeholder="아이디 입력" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false">
     <label class="sm-llabel" for="smPw">비밀번호</label>
-    <input class="sm-linput" type="password" id="smPw" placeholder="비밀번호 입력"
-      autocomplete="current-password">
+    <input class="sm-linput" type="password" id="smPw" placeholder="비밀번호 입력" autocomplete="current-password">
     <button class="sm-lbtn" id="smLoginBtn" onclick="smDoLogin()">로그인</button>
     <div class="sm-lerr" id="smErrMsg"></div>
-    <div class="sm-lmsg" id="smLoadingMsg">⟳ 인증 중...</div>
+    <div class="sm-lmsg" id="smLoadingMsg">&#x27F3; 인증 중...</div>
   </div>
 </div>
-<!-- 로딩 오버레이 -->
 <div id="smLoadingOv">
   <div class="sm-spinner"></div>
   <div class="sm-stxt" id="smLoadingTxt">데이터 불러오는 중...</div>
 </div>
-
-<body>
 <div id="loadingBar" style="width:0%"></div>
 <header>
   <div class="logo">SALES<em>/</em>MASTER <span style="color:var(--text3);font-size:12px;letter-spacing:1px;">디자인세창</span></div>
@@ -277,7 +239,7 @@ select.si{cursor:pointer;flex:none;}
     <span id="currentMonthBadge">--</span>
     <span id="savedDataBadge" style="display:none;font-family:IBM Plex Mono,monospace;font-size:12px;background:rgba(68,232,122,.15);color:#44e87a;border:1px solid rgba(68,232,122,.3);padding:4px 12px;border-radius:16px;cursor:default;" title="저장된 데이터가 있습니다"></span>
     <button id="clearSavedBtn" onclick="clearSavedData()" style="display:none;background:rgba(255,85,119,.15);color:#ff5577;border:1px solid rgba(255,85,119,.3);border-radius:8px;padding:7px 14px;font-size:13px;font-family:Noto Sans KR,sans-serif;font-weight:600;cursor:pointer;">저장 데이터 삭제</button>
-    <span id="smUserBadge" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#7a8ab0;background:#1a1e2a;border:1px solid #3a4260;padding:4px 12px;border-radius:16px;display:none;"></span>
+    <span id="smUserBadge" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#7a8ab0;background:#1a1e2a;border:1px solid #3a4260;padding:4px 12px;border-radius:16px;"></span>
     <span id="smAdminBadge" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;background:rgba(255,184,48,.18);color:#ffb830;border:1px solid rgba(255,184,48,.35);padding:4px 12px;border-radius:16px;">&#9881; 관리자</span>
     <label for="fileInput" id="smUploadLabel" class="btn-upload" style="cursor:pointer;display:none;">엑셀 업로드</label>
     <input type="file" id="fileInput" accept=".xlsx,.xls">
@@ -328,7 +290,7 @@ select.si{cursor:pointer;flex:none;}
     <div class="tab" data-tab="alert">🚨 이탈 감지 <span class="badge" id="alertBadge">0</span></div>
     <div class="tab" data-tab="manager">👤 담당자 분석</div>
     <div class="tab" data-tab="memo">📝 메모·태그</div>
-    <div class="tab" id="smAdminTab" data-tab="sm-admin" style="display:none;">⚙️ 계정 관리</div>
+    <div class="tab" id="smAdminTab" data-tab="sm-admin" style="display:none;">&#9881;&#65039; 계정 관리</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -956,7 +918,7 @@ window.addEventListener('popstate',function(e){
 
 // On page load, check for hash in URL
 document.addEventListener('DOMContentLoaded', function(){
-  checkSavedDataOnStart();
+  // 데이터 로드는 로그인 완료 후 smShowApp()에서 처리
   var hash=window.location.hash.replace('#','');
   var validTabs=['dashboard','expected','compare','history','trend','keyword','alert','manager','memo'];
   if(validTabs.includes(hash)){
@@ -2225,22 +2187,22 @@ function _renderAlertWithExport(){
 }
 </script>
 
-  <!-- ══ 관리자 계정 관리 탭 ══ -->
+  <!-- 관리자 계정 관리 탭 -->
   <div class="tab-content" id="tab-sm-admin">
     <div class="info-box">
-      ⚙️ <strong>계정 관리</strong> — 관리자 전용 메뉴입니다.<br>
+      &#9881;&#65039; <strong>계정 관리</strong> — 관리자 전용 메뉴입니다.<br>
       직원 계정 추가·삭제, 비밀번호 초기화, 접속 로그를 확인할 수 있습니다.
     </div>
     <div class="g2" style="margin-bottom:18px;">
       <div class="section">
         <div class="section-header">
-          <span class="section-title">👥 직원 계정 목록</span>
+          <span class="section-title">&#128101; 직원 계정 목록</span>
           <button class="btn" style="padding:7px 16px;font-size:13px;" onclick="smAdminLoadAccounts()">새로고침</button>
         </div>
         <div id="smAccountList" style="padding:16px;"><div class="empty">새로고침 버튼을 눌러 불러오세요</div></div>
       </div>
       <div class="section">
-        <div class="section-header"><span class="section-title">➕ 새 계정 추가</span></div>
+        <div class="section-header"><span class="section-title">&#10133; 새 계정 추가</span></div>
         <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:7px;">아이디 <span style="color:var(--text3);font-weight:400;">(영문 소문자+숫자만)</span></div>
@@ -2265,7 +2227,7 @@ function _renderAlertWithExport(){
     </div>
     <div class="section">
       <div class="section-header">
-        <span class="section-title">📋 접속 로그</span>
+        <span class="section-title">&#128203; 접속 로그</span>
         <div style="display:flex;gap:8px;align-items:center;">
           <select id="smLogLimit" class="si" style="width:130px;font-size:13px;padding:7px 10px;flex:none;">
             <option value="30">최근 30건</option>
@@ -2285,108 +2247,80 @@ function _renderAlertWithExport(){
   </div>
 
 <script>
-// ════════════════════════════════════════════════════════
-// 영업 마스터 — 로그인 & 계정 관리
-// ════════════════════════════════════════════════════════
 var SM_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzIrBAeI5L40e-HHglmhiKo5cGUdIaAWPIYXIl3mCngeLZaeb4Nrg-YLC4-PUI0X9R/exec';
-var SM_SK = 'sm_sess_v5';
+var SM_SK = 'sm_sess_v6';
 var smSession = null;
 
-// ── 페이지 로드 ──────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('load', function() {
   var saved = smGetSession();
-  if (saved) {
-    smSession = saved;
-    smShowApp();
-  } else {
-    smShowLogin();
-  }
-  // 관리자 탭 클릭 시 계정 목록 로드
-  document.querySelectorAll('.tab').forEach(function(t) {
-    t.addEventListener('click', function() {
-      if (t.dataset.tab === 'sm-admin') smAdminLoadAccounts();
-    });
-  });
+  if (saved) { smSession = saved; smShowApp(); }
+  else { smShowLogin(); }
 });
 
-// ── 로그인 화면 표시 ──────────────────────────────────
 function smShowLogin() {
   document.getElementById('smLoginOverlay').classList.remove('hidden');
-  // Enter 키 로그인
-  ['smUid','smPw'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('keydown', function(e) { if(e.key==='Enter') smDoLogin(); });
-  });
+  document.getElementById('smUid').addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
+  document.getElementById('smPw').addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
 }
 
-// ── 로그인 처리 ───────────────────────────────────────
 function smDoLogin() {
   var uid = (document.getElementById('smUid').value||'').trim();
   var pw  = document.getElementById('smPw').value||'';
-  if (!uid || !pw) { smShowErr('아이디와 비밀번호를 입력하세요.'); return; }
+  if (!uid||!pw) { smShowErr('아이디와 비밀번호를 입력하세요.'); return; }
   smSetBusy(true);
-  smFetchPost({action:'login', username:uid, password:pw})
+  smPost({action:'login', username:uid, password:pw})
   .then(function(res) {
-    if (res.ok) {
-      smSaveSession(res);
-      smSession = res;
-      smShowApp();
-    } else {
-      smShowErr(res.error || '로그인 실패');
-    }
-    smSetBusy(false);
+    if (res.ok) { smSaveSession(res); smSession=res; smShowApp(); }
+    else { smShowErr(res.error||'로그인 실패'); smSetBusy(false); }
   })
-  .catch(function(e) {
-    smShowErr('서버 연결 오류: ' + e.message + '\n\nSM_SCRIPT_URL을 확인하세요.');
-    smSetBusy(false);
-  });
+  .catch(function(e) { smShowErr('서버 연결 오류: '+e.message); smSetBusy(false); });
 }
 
-// ── 앱 표시 ───────────────────────────────────────────
 function smShowApp() {
   document.getElementById('smLoginOverlay').classList.add('hidden');
-  // 사용자 배지
-  var ub = document.getElementById('smUserBadge');
-  if (ub) { ub.textContent = '👤 ' + (smSession.name||smSession.username); ub.style.display='inline-block'; }
-  // 관리자
+  var ub=document.getElementById('smUserBadge');
+  if(ub){ub.textContent='👤 '+(smSession.name||smSession.username);ub.style.display='inline-block';}
   if (smSession.isAdmin) {
-    var ab = document.getElementById('smAdminBadge');
-    if (ab) ab.style.display = 'inline-block';
-    var ul = document.getElementById('smUploadLabel');
-    if (ul) ul.style.display = 'inline-block';
-    var at = document.getElementById('smAdminTab');
-    if (at) at.style.display = 'inline-block';
+    var ab=document.getElementById('smAdminBadge'); if(ab) ab.style.display='inline-block';
+    var ul=document.getElementById('smUploadLabel'); if(ul) ul.style.display='inline-block';
+    var at=document.getElementById('smAdminTab'); if(at) at.style.display='inline-block';
   }
-  // 서버에서 데이터 로드
- smLoadData();
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click',function(){ if(t.dataset.tab==='sm-admin') smAdminLoadAccounts(); });
+  });
+  if (smSession.isAdmin) {
+    var fi=document.getElementById('fileInput');
+    if(fi) fi.addEventListener('change', function(e){
+      var file=e.target.files[0]; if(!file) return;
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        var bytes=new Uint8Array(ev.target.result), bin='';
+        bytes.forEach(function(b){bin+=String.fromCharCode(b);});
+        smPost({action:'upload',token:smSession.token,fileName:file.name,fileData:btoa(bin)})
+        .then(function(res){ if(res.ok) alert('서버 업로드 완료!'); else alert('업로드 실패: '+(res.error||'오류')); })
+        .catch(function(e){alert('오류: '+e.message);});
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+  smLoadData();
 }
 
-// ── 서버에서 엑셀 데이터 로드 ──────────────────────
 function smLoadData() {
   document.getElementById('smLoadingOv').classList.add('show');
-  document.getElementById('smLoadingTxt').textContent = '데이터 불러오는 중...';
-  smFetchPost({action:'data', token:smSession.token})
+  smPost({action:'data', token:smSession.token})
   .then(function(res) {
     document.getElementById('smLoadingOv').classList.remove('show');
-    if (!res.ok || !res.hasData) {
-      // 서버에 데이터 없으면 localStorage 시도
-      checkSavedDataOnStart();
-      return;
-    }
-    // base64 → ArrayBuffer → XLSX 파싱
-    var bin = atob(res.fileBase64);
-    var buf = new ArrayBuffer(bin.length);
-    var view = new Uint8Array(buf);
-    for (var i=0; i<bin.length; i++) view[i] = bin.charCodeAt(i);
-    // 기존 loadFile 로직 재사용
+    if (!res.ok||!res.hasData) { checkSavedDataOnStart(); return; }
+    var bin=atob(res.fileBase64), buf=new ArrayBuffer(bin.length), view=new Uint8Array(buf);
+    for(var i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
     setLoading(50);
-    var wb = XLSX.read(buf, {type:'array', cellDates:true});
-    allRows = [];
-    wb.SheetNames.forEach(function(sn) {
-      var yr = parseInt(sn); if (isNaN(yr)) return;
-      var ws = wb.Sheets[sn];
-      var data = XLSX.utils.sheet_to_json(ws, {defval:''});
-      data.forEach(function(row) {
+    var wb=XLSX.read(buf,{type:'array',cellDates:true});
+    allRows=[];
+    wb.SheetNames.forEach(function(sn){
+      var yr=parseInt(sn); if(isNaN(yr)) return;
+      var data=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
+      data.forEach(function(row){
         var n={}; Object.keys(row).forEach(function(k){n[k.trim()]=row[k];});
         var date=parseDate(n['일자']||n['날짜']||''); if(!date) return;
         var client=(n['발주처']||'').toString().trim(); if(!client) return;
@@ -2401,143 +2335,92 @@ function smLoadData() {
     });
     years=[...new Set(allRows.map(function(r){return r.year;}))].sort(function(a,b){return a-b;});
     clients=[...new Set(allRows.map(function(r){return r.client;}))].filter(Boolean).sort();
-    saveToStorage();
-    initApp();
+    saveToStorage(); initApp();
     setLoading(100); setTimeout(function(){setLoading(0);},500);
-    // 서버 데이터 배지
-    var badge = document.getElementById('savedDataBadge');
-    if (badge && res.uploadedAt) {
-      var d = new Date(res.uploadedAt);
-      badge.textContent = '☁ 서버 ' + d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-      badge.style.display = 'inline-block';
+    var badge=document.getElementById('savedDataBadge');
+    if(badge&&res.uploadedAt){
+      var d=new Date(res.uploadedAt);
+      badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+      badge.style.display='inline-block';
     }
   })
-  .catch(function() {
-    document.getElementById('smLoadingOv').classList.remove('show');
-    checkSavedDataOnStart();
-  });
+  .catch(function(){ document.getElementById('smLoadingOv').classList.remove('show'); checkSavedDataOnStart(); });
 }
 
-// ── 관리자: 파일 업로드 → 서버 저장 ──────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  var fi = document.getElementById('fileInput');
-  if (!fi) return;
-  fi.addEventListener('change', function(e) {
-    var file = e.target.files[0]; if (!file) return;
-   if (smSession && smSession.isAdmin) {
-      var reader = new FileReader();
-      reader.onload = function(ev) {
-        var bytes = new Uint8Array(ev.target.result);
-        var bin = ''; bytes.forEach(function(b){bin+=String.fromCharCode(b);});
-        smFetchPost({action:'upload', token:smSession.token, fileName:file.name, fileData:btoa(bin)})
-        .then(function(res) {
-          if (res.ok) alert('✅ 서버 업로드 완료!
-직원들이 다음 로그인 시 새 데이터를 받습니다.');
-          else alert('업로드 실패: ' + (res.error||'오류'));
-        }).catch(function(e){alert('오류: '+e.message);});
-      };
-      reader.readAsArrayBuffer(file);
-    }
-    loadFile(file);
-  });
-});
+function smLogout(){if(!confirm('로그아웃 하시겠습니까?'))return;smClearSession();location.reload();}
 
-// ── 로그아웃 ──────────────────────────────────────────
-function smLogout() {
-  if (!confirm('로그아웃 하시겠습니까?')) return;
-  smClearSession();
-  location.reload();
-}
+function smAdminFetch(body){body.token=smSession?smSession.token:'';return smPost(body);}
 
-// ── 관리자 기능 ───────────────────────────────────────
-function smAdminFetch(body) {
-  body.token = smSession ? smSession.token : '';
-  return smFetchPost(body);
-}
-
-function smAdminLoadAccounts() {
-  document.getElementById('smAccountList').innerHTML = '<div class="empty">불러오는 중...</div>';
-  smAdminFetch({action:'getAccounts'}).then(function(res) {
-    if (!res.ok) { document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">오류: '+res.error+'</div>'; return; }
-    var list = res.accounts||[];
-    if (!list.length) { document.getElementById('smAccountList').innerHTML='<div class="empty">등록된 계정이 없습니다</div>'; return; }
+function smAdminLoadAccounts(){
+  document.getElementById('smAccountList').innerHTML='<div class="empty">불러오는 중...</div>';
+  smAdminFetch({action:'getAccounts'}).then(function(res){
+    if(!res.ok){document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">오류: '+res.error+'</div>';return;}
+    var list=res.accounts||[];
+    if(!list.length){document.getElementById('smAccountList').innerHTML='<div class="empty">등록된 계정이 없습니다</div>';return;}
     var html='<table class="data-table"><thead><tr><th>아이디</th><th>이름</th><th>권한</th><th>관리</th></tr></thead><tbody>';
-    list.forEach(function(a) {
-      var isSelf = smSession && a.username === smSession.username;
-      var role = a.isAdmin ? '<span class="tag yellow">관리자</span>' : '<span class="tag blue">직원</span>';
-      var uid = a.username.replace(/['"]/g,''), nm = a.name.replace(/['"]/g,'');
-      html += '<tr><td class="mono">'+a.username+'</td><td style="font-weight:600">'+a.name+'</td><td>'+role+'</td><td style="display:flex;gap:6px;flex-wrap:wrap;">';
-      if (isSelf) {
-        html += '<span style="font-size:12px;color:var(--text3)">(본인)</span>';
-      } else {
-        html += '<button class="btn sec" style="padding:4px 10px;font-size:12px;" onclick="smAdminResetPw(''+uid+'',''+nm+'')">비번초기화</button>';
-        html += '<button style="background:var(--red-bg);color:var(--red);border:1px solid rgba(255,85,119,.3);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;" onclick="smAdminDelete(''+uid+'',''+nm+'')">삭제</button>';
+    list.forEach(function(a){
+      var isSelf=smSession&&a.username===smSession.username;
+      var role=a.isAdmin?'<span class="tag yellow">관리자</span>':'<span class="tag blue">직원</span>';
+      var uid=a.username.replace(/['"<>&]/g,''), nm=a.name.replace(/['"<>&]/g,'');
+      html+='<tr><td class="mono">'+a.username+'</td><td style="font-weight:600">'+a.name+'</td><td>'+role+'</td><td style="display:flex;gap:6px;flex-wrap:wrap;">';
+      if(isSelf){html+='<span style="font-size:12px;color:var(--text3)">(본인)</span>';}
+      else{
+        html+='<button class="btn sec" style="padding:4px 10px;font-size:12px;" data-uid="'+uid+'" data-nm="'+nm+'" onclick="smAdminResetPw(this.dataset.uid,this.dataset.nm)">비번초기화</button>';
+        html+='<button style="background:var(--red-bg);color:var(--red);border:1px solid rgba(255,85,119,.3);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;" data-uid="'+uid+'" data-nm="'+nm+'" onclick="smAdminDelete(this.dataset.uid,this.dataset.nm)">삭제</button>';
       }
-      html += '</td></tr>';
+      html+='</td></tr>';
     });
-    document.getElementById('smAccountList').innerHTML = html+'</tbody></table>';
-  }).catch(function(e){ document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">오류: '+e.message+'</div>'; });
+    document.getElementById('smAccountList').innerHTML=html+'</tbody></table>';
+  }).catch(function(e){document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">오류: '+e.message+'</div>';});
 }
 
-function smAdminAddAccount() {
-  var uid  = (document.getElementById('smNewId').value||'').trim().toLowerCase();
-  var name = (document.getElementById('smNewName').value||'').trim();
-  var pw   = (document.getElementById('smNewPw').value||'').trim();
-  var isAdm = document.getElementById('smNewIsAdmin').checked;
-  if (!uid||!name||!pw) { smShowAddMsg('error','모든 항목을 입력하세요.'); return; }
-  if (!/^[a-z0-9_]+$/.test(uid)) { smShowAddMsg('error','아이디는 영문 소문자, 숫자, _만 가능합니다.'); return; }
-  if (pw.length<4) { smShowAddMsg('error','비밀번호는 4자 이상이어야 합니다.'); return; }
+function smAdminAddAccount(){
+  var uid=(document.getElementById('smNewId').value||'').trim().toLowerCase();
+  var name=(document.getElementById('smNewName').value||'').trim();
+  var pw=(document.getElementById('smNewPw').value||'').trim();
+  var isAdm=document.getElementById('smNewIsAdmin').checked;
+  if(!uid||!name||!pw){smShowAddMsg('error','모든 항목을 입력하세요.');return;}
+  if(!/^[a-z0-9_]+$/.test(uid)){smShowAddMsg('error','아이디는 영문 소문자, 숫자, _만 가능합니다.');return;}
+  if(pw.length<4){smShowAddMsg('error','비밀번호는 4자 이상이어야 합니다.');return;}
   smShowAddMsg('loading','추가 중...');
   smAdminFetch({action:'addAccount',username:uid,name:name,password:pw,isAdmin:isAdm})
-  .then(function(res) {
-    if (res.ok) {
-      smShowAddMsg('ok','✅ ['+name+'] 계정 추가 완료! (아이디: '+uid+')');
-      document.getElementById('smNewId').value='';
-      document.getElementById('smNewName').value='';
-      document.getElementById('smNewPw').value='';
-      document.getElementById('smNewIsAdmin').checked=false;
-      smAdminLoadAccounts();
-    } else { smShowAddMsg('error', res.error||'추가 실패'); }
+  .then(function(res){
+    if(res.ok){smShowAddMsg('ok','['+name+'] 계정 추가 완료! (아이디: '+uid+')');document.getElementById('smNewId').value='';document.getElementById('smNewName').value='';document.getElementById('smNewPw').value='';document.getElementById('smNewIsAdmin').checked=false;smAdminLoadAccounts();}
+    else{smShowAddMsg('error',res.error||'추가 실패');}
   }).catch(function(e){smShowAddMsg('error','오류: '+e.message);});
 }
 
-function smAdminResetPw(uid, name) {
-  var newPw = prompt('['+name+'] 새 비밀번호 입력 (4자 이상):', '');
-  if (newPw===null) return;
-  if (!newPw||newPw.trim().length<4) { alert('4자 이상 입력하세요.'); return; }
+function smAdminResetPw(uid,name){
+  var newPw=prompt('['+name+'] 새 비밀번호 입력 (4자 이상):','');
+  if(newPw===null)return;
+  if(!newPw||newPw.trim().length<4){alert('4자 이상 입력하세요.');return;}
   smAdminFetch({action:'resetPassword',username:uid,newPassword:newPw.trim()})
-  .then(function(res){
-    if (res.ok) alert('✅ ['+name+'] 비밀번호 초기화 완료!
-새 비밀번호: '+newPw.trim());
-    else alert('실패: '+(res.error||'오류'));
-  }).catch(function(e){alert('오류: '+e.message);});
+  .then(function(res){if(res.ok)alert('['+name+'] 비밀번호 초기화 완료! 새 비밀번호: '+newPw.trim());else alert('실패: '+(res.error||'오류'));})
+  .catch(function(e){alert('오류: '+e.message);});
 }
 
-function smAdminDelete(uid, name) {
-  if (!confirm('['+name+' ('+uid+')] 계정을 삭제하시겠습니까?
-삭제 후 해당 직원은 로그인할 수 없습니다.')) return;
+function smAdminDelete(uid,name){
+  if(!confirm('['+name+' ('+uid+')] 계정을 삭제하시겠습니까?'))return;
   smAdminFetch({action:'deleteAccount',username:uid})
-  .then(function(res){
-    if (res.ok) { alert('✅ ['+name+'] 삭제 완료'); smAdminLoadAccounts(); }
-    else alert('실패: '+(res.error||'오류'));
-  }).catch(function(e){alert('오류: '+e.message);});
+  .then(function(res){if(res.ok){alert('['+name+'] 삭제 완료');smAdminLoadAccounts();}else alert('실패: '+(res.error||'오류'));})
+  .catch(function(e){alert('오류: '+e.message);});
 }
 
-function smAdminLoadLogs() {
-  var limit = parseInt(document.getElementById('smLogLimit').value)||30;
+function smAdminLoadLogs(){
+  var limit=parseInt(document.getElementById('smLogLimit').value)||30;
   document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty">불러오는 중...</td></tr>';
   smAdminFetch({action:'getLogs',limit:limit}).then(function(res){
-    if (!res.ok) { document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">오류: '+res.error+'</td></tr>'; return; }
+    if(!res.ok){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">오류: '+res.error+'</td></tr>';return;}
     var logs=res.logs||[];
-    if (!logs.length) { document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty">로그 없음</td></tr>'; return; }
+    if(!logs.length){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty">로그 없음</td></tr>';return;}
     var html='';
     logs.forEach(function(log){
       var tag='<span class="tag gray">'+log.action+'</span>';
-      if(log.action==='login') tag='<span class="tag green">로그인</span>';
-      else if((log.action||'').startsWith('upload')) tag='<span class="tag blue">업로드</span>';
-      else if(log.action==='addAccount') tag='<span class="tag yellow">계정추가</span>';
-      else if(log.action==='deleteAccount') tag='<span class="tag red">계정삭제</span>';
-      else if(log.action==='resetPassword') tag='<span class="tag orange">비번초기화</span>';
+      if(log.action==='login')tag='<span class="tag green">로그인</span>';
+      else if((log.action||'').startsWith('upload'))tag='<span class="tag blue">업로드</span>';
+      else if(log.action==='addAccount')tag='<span class="tag yellow">계정추가</span>';
+      else if(log.action==='deleteAccount')tag='<span class="tag red">계정삭제</span>';
+      else if(log.action==='resetPassword')tag='<span class="tag orange">비번초기화</span>';
       html+='<tr><td class="mono" style="font-size:12px;">'+log.time+'</td><td class="mono">'+log.username+'</td><td>'+log.name+'</td><td>'+tag+'</td><td style="font-size:12px;color:var(--text3)">'+log.detail+'</td></tr>';
     });
     document.getElementById('smLogBody').innerHTML=html;
@@ -2545,43 +2428,19 @@ function smAdminLoadLogs() {
 }
 
 function smShowAddMsg(type,msg){
-  var el=document.getElementById('smAddMsg'); if(!el)return;
+  var el=document.getElementById('smAddMsg');if(!el)return;
   el.style.display='block';
   if(type==='ok'){el.style.background='rgba(68,232,122,.1)';el.style.border='1px solid rgba(68,232,122,.3)';el.style.color='#44e87a';}
   else if(type==='error'){el.style.background='rgba(255,85,119,.1)';el.style.border='1px solid rgba(255,85,119,.3)';el.style.color='#ff5577';}
   else{el.style.background='rgba(0,212,255,.08)';el.style.border='1px solid rgba(0,212,255,.2)';el.style.color='#00d4ff';}
   el.textContent=msg;
 }
-
-// ── 유틸 ──────────────────────────────────────────────
-function smFetchPost(body) {
-  return fetch(SM_SCRIPT_URL, {
-    method:'POST', headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify(body)
-  }).then(function(r){return r.json();});
-}
-function smSaveSession(d) {
-  sessionStorage.setItem(SM_SK, JSON.stringify({token:d.token,username:d.username,name:d.name,isAdmin:d.isAdmin,expiry:d.expiry}));
-}
-function smGetSession() {
-  try {
-    var s=JSON.parse(sessionStorage.getItem(SM_SK));
-    if(!s||!s.token) return null;
-    if(s.expiry&&new Date().getTime()>s.expiry){smClearSession();return null;}
-    return s;
-  }catch(e){return null;}
-}
+function smPost(body){return fetch(SM_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+function smSaveSession(d){sessionStorage.setItem(SM_SK,JSON.stringify({token:d.token,username:d.username,name:d.name,isAdmin:d.isAdmin,expiry:d.expiry}));}
+function smGetSession(){try{var s=JSON.parse(sessionStorage.getItem(SM_SK));if(!s||!s.token)return null;if(s.expiry&&new Date().getTime()>s.expiry){smClearSession();return null;}return s;}catch(e){return null;}}
 function smClearSession(){sessionStorage.removeItem(SM_SK);}
-function smShowErr(msg){
-  var el=document.getElementById('smErrMsg'); if(!el)return;
-  el.textContent=msg; el.style.display='block';
-  var lm=document.getElementById('smLoadingMsg'); if(lm)lm.style.display='none';
-}
-function smSetBusy(b){
-  var btn=document.getElementById('smLoginBtn'); if(btn)btn.disabled=b;
-  var lm=document.getElementById('smLoadingMsg'); if(lm)lm.style.display=b?'block':'none';
-  var em=document.getElementById('smErrMsg'); if(em&&b)em.style.display='none';
-}
+function smShowErr(msg){var el=document.getElementById('smErrMsg');if(!el)return;el.textContent=msg;el.style.display='block';var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display='none';}
+function smSetBusy(b){var btn=document.getElementById('smLoginBtn');if(btn)btn.disabled=b;var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display=b?'block':'none';var em=document.getElementById('smErrMsg');if(em&&b)em.style.display='none';}
 </script>
 
 </body>
