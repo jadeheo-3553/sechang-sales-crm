@@ -2358,7 +2358,7 @@ function smShowApp() {
     if (at) at.style.display = 'inline-block';
   }
   // 서버에서 데이터 로드
-  if (!SM_SCRIPT_URL.includes('여기에붙여넣기')) {
+  if (!SM_SCRIPT_URL.includes('https://script.google.com/macros/s/AKfycbzzIrBAeI5L40e-HHglmhiKo5cGUdIaAWPIYXIl3mCngeLZaeb4Nrg-YLC4-PUI0X9R/exec')) {
     smLoadData();
   } else {
     checkSavedDataOnStart();
@@ -2428,7 +2428,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!fi) return;
   fi.addEventListener('change', function(e) {
     var file = e.target.files[0]; if (!file) return;
-    if (smSession && smSession.isAdmin && !SM_SCRIPT_URL.includes('여기에붙여넣기')) {
+    if (smSession && smSession.isAdmin && !SM_SCRIPT_URL.includes('https://script.google.com/macros/s/AKfycbzzIrBAeI5L40e-HHglmhiKo5cGUdIaAWPIYXIl3mCngeLZaeb4Nrg-YLC4-PUI0X9R/exec')) {
       var reader = new FileReader();
       reader.onload = function(ev) {
         var bytes = new Uint8Array(ev.target.result);
