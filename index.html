@@ -24,7 +24,7 @@
 ::-webkit-scrollbar-track{background:#2a3248;border-radius:8px;}
 ::-webkit-scrollbar-thumb{background:#5a6a9a;border-radius:8px;border:3px solid #2a3248;}
 ::-webkit-scrollbar-thumb:hover{background:#7a8abf;}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+html,body{height:100%;}body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:2px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
 .logo{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--accent);letter-spacing:2px;}
 .logo em{color:var(--text3);font-style:normal;margin:0 4px;}
@@ -191,7 +191,7 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-#smLoginOverlay{display:flex;position:fixed;inset:0;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:2147483647;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay{display:flex!important;position:fixed!important;inset:0!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;min-width:100vw;min-height:100vh;background:#0d0f14!important;z-index:2147483647!important;align-items:center!important;justify-content:center!important;font-family:'Noto Sans KR',sans-serif;margin:0!important;padding:0!important;}
 #smLoginOverlay.hidden{display:none;}
 .sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 .sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
@@ -2270,9 +2270,22 @@ window.addEventListener('load', function() {
   else { smShowLogin(); }
 });
 
+// 혹시라도 로그인 오버레이가 보여야 할 때 강제로 중앙 표시
+window.addEventListener('resize', function() {
+  var ov = document.getElementById('smLoginOverlay');
+  if (ov && !ov.classList.contains('hidden') && ov.style.display !== 'none') {
+    ov.style.width = '100%';
+    ov.style.height = '100%';
+  }
+});
+
 function smShowLogin() {
   var ov = document.getElementById('smLoginOverlay');
-  if (ov) ov.classList.remove('hidden');
+  if (ov) {
+    ov.classList.remove('hidden');
+    // 스타일 직접 강제 적용 (CSS 충돌 방지)
+    ov.style.cssText = 'display:flex!important;position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;background:#0d0f14!important;z-index:2147483647!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important;';
+  }
   var uid = document.getElementById('smUid');
   var pw = document.getElementById('smPw');
   if (uid) uid.addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
