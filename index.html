@@ -191,7 +191,7 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-#smLoginOverlay{display:flex;position:fixed;inset:0;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay{display:flex;position:fixed;inset:0;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:2147483647;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
 #smLoginOverlay.hidden{display:none;}
 .sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 .sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
@@ -215,6 +215,15 @@ select.si{cursor:pointer;flex:none;}
 </style>
 </head>
 <body>
+<script>
+// 페이지 로드 즉시 uploadZone/appZone 숨김 (깜빡임 방지)
+document.addEventListener('DOMContentLoaded', function() {
+  var uz = document.getElementById('uploadZone');
+  var az = document.getElementById('appZone');
+  if (uz) uz.style.display = 'none';
+  if (az) az.style.display = 'none';
+});
+</script>
 <div id="smLoginOverlay">
   <div class="sm-lcard">
     <div class="sm-llogo">SALES<em>/</em>MASTER</div>
