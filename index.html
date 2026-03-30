@@ -191,7 +191,7 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-#smLoginOverlay{display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;box-sizing:border-box;}
 #smLoginOverlay.hidden{display:none;}
 .sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 .sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
@@ -773,7 +773,7 @@ function updateSavedBadge(){
   if(meta&&badge){
     const d=new Date(meta.savedAt);
     const dateStr=d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-    badge.textContent='💾 저장됨 '+dateStr+' ('+meta.rowCount.toLocaleString()+'건)';
+    badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
     badge.style.display='inline-block';
     if(clearBtn) clearBtn.style.display='inline-block';
   } else {
@@ -2263,7 +2263,19 @@ window.addEventListener('load', function() {
 
 function smShowLogin() {
   var ov = document.getElementById('smLoginOverlay');
-  if (ov) ov.classList.remove('hidden');
+  if (ov) {
+    ov.classList.remove('hidden');
+    ov.style.position = 'fixed';
+    ov.style.top = '0';
+    ov.style.left = '0';
+    ov.style.width = '100vw';
+    ov.style.height = '100vh';
+    ov.style.display = 'flex';
+    ov.style.alignItems = 'center';
+    ov.style.justifyContent = 'center';
+    ov.style.background = '#0d0f14';
+    ov.style.zIndex = '99999';
+  }
   var uid = document.getElementById('smUid');
   var pw = document.getElementById('smPw');
   if (uid) uid.addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
@@ -2333,15 +2345,15 @@ function smLoadData() {
       var data=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
       data.forEach(function(row){
         var n={}; Object.keys(row).forEach(function(k){n[k.trim()]=row[k];});
-        var date=parseDate(n['\uc77c\uc790']||n['\ub0a0\uc9dc']||''); if(!date) return;
-        var client=(n['\ubc1c\uc8fc\uc815']||'').toString().trim(); if(!client) return;
+        var date=parseDate(n['일자']||n['날짜']||''); if(!date) return;
+        var client=(n['발주처']||'').toString().trim(); if(!client) return;
         allRows.push({date:date,year:date.getFullYear(),month:date.getMonth()+1,
-          jobNo:n['\uc791\uc5c5\ubc88\ud638']||'',client:client,
-          manager:(n['\ub2f4\ub2f9\uc790']||'').toString().trim(),
-          subject:(n['\uac74\uba85']||'').toString().trim(),
-          phone:(n['\ud578\ub4dc\ud3f0']||n['\uc5f0\ub77d\uc815']||'').toString().trim(),
-          tel:(n['\uc77c\ubc18\uc804\ud654']||'').toString().trim(),
-          email:(n['\uc774\uba54\uc77c']||'').toString().trim()});
+          jobNo:n['작업번호']||'',client:client,
+          manager:(n['담당자']||'').toString().trim(),
+          subject:(n['건명']||'').toString().trim(),
+          phone:(n['핸드폰']||n['연락처']||'').toString().trim(),
+          tel:(n['일반전화']||'').toString().trim(),
+          email:(n['이메일']||'').toString().trim()});
       });
     });
     years=[...new Set(allRows.map(function(r){return r.year;}))].sort(function(a,b){return a-b;});
@@ -2351,7 +2363,7 @@ function smLoadData() {
     var badge=document.getElementById('savedDataBadge');
     if(badge&&res.uploadedAt){
       var d=new Date(res.uploadedAt);
-      badge.textContent='\u2601 \uc11c\ubc84 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+      badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
       badge.style.display='inline-block';
     }
     smCurrentUploadedAt = res.uploadedAt || '';
@@ -2359,7 +2371,6 @@ function smLoadData() {
   })
   .catch(function(){ if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
 }
-
 function smLogout() {
   if (!confirm('\ub85c\uadf8\uc544\uc6c3 \ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) return;
   smClearSession(); location.reload();
