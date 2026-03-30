@@ -24,7 +24,7 @@
 ::-webkit-scrollbar-track{background:#2a3248;border-radius:8px;}
 ::-webkit-scrollbar-thumb{background:#5a6a9a;border-radius:8px;border:3px solid #2a3248;}
 ::-webkit-scrollbar-thumb:hover{background:#7a8abf;}
-html{height:100%;}body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;height:100%;font-size:15px;line-height:1.6;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:2px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
 .logo{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--accent);letter-spacing:2px;}
 .logo em{color:var(--text3);font-style:normal;margin:0 4px;}
@@ -191,7 +191,7 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;box-sizing:border-box;}
+#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
 #smLoginOverlay.hidden{display:none;}
 .sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 .sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
@@ -210,7 +210,6 @@ select.si{cursor:pointer;flex:none;}
 #smLoadingOv.show{display:flex;}
 .sm-spinner{width:44px;height:44px;border:3px solid #3a4260;border-top-color:#00d4ff;border-radius:50%;animation:smSpin .8s linear infinite;}
 @keyframes smSpin{to{transform:rotate(360deg);}}
-@keyframes smPulse{0%,100%{opacity:1;}50%{opacity:.65;}}
 .sm-stxt{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#b0bcdb;}
 </style>
 </head>
@@ -773,7 +772,7 @@ function updateSavedBadge(){
   if(meta&&badge){
     const d=new Date(meta.savedAt);
     const dateStr=d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-    badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+    badge.textContent='💾 저장됨 '+dateStr+' ('+meta.rowCount.toLocaleString()+'건)';
     badge.style.display='inline-block';
     if(clearBtn) clearBtn.style.display='inline-block';
   } else {
@@ -2263,19 +2262,7 @@ window.addEventListener('load', function() {
 
 function smShowLogin() {
   var ov = document.getElementById('smLoginOverlay');
-  if (ov) {
-    ov.classList.remove('hidden');
-    ov.style.position = 'fixed';
-    ov.style.top = '0';
-    ov.style.left = '0';
-    ov.style.width = '100vw';
-    ov.style.height = '100vh';
-    ov.style.display = 'flex';
-    ov.style.alignItems = 'center';
-    ov.style.justifyContent = 'center';
-    ov.style.background = '#0d0f14';
-    ov.style.zIndex = '99999';
-  }
+  if (ov) ov.classList.remove('hidden');
   var uid = document.getElementById('smUid');
   var pw = document.getElementById('smPw');
   if (uid) uid.addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
@@ -2329,35 +2316,18 @@ function smShowApp() {
 }
 
 function smLoadData() {
-  // 1단계: 로컬스토리지 데이터가 있으면 즉시 앱 표시
-  var hasSaved = (function(){
-    try { return !!localStorage.getItem('salesmaster_data_v2'); } catch(e){ return false; }
-  })();
-
-  if (hasSaved) {
-    // 로컬스토리지 데이터로 즉시 앱 표시
-    if (loadFromStorage()) {
-      // 백그라운드에서 서버 최신 데이터 확인
-      smCheckServerUpdate();
+  // 로컬스토리지 데이터 있으면 즉시 앱 표시 후 백그라운드 서버 확인
+  try {
+    if (localStorage.getItem('salesmaster_data_v2') && loadFromStorage()) {
+      smCheckServerInBackground();
       return;
     }
-  }
-
-  // 로컬스토리지 없으면 서버에서 로드
-  smLoadFromServer();
-}
-
-function smLoadFromServer() {
+  } catch(e) {}
+  // 로컬스토리지 없으면 서버에서 직접 로드
   var ov = document.getElementById('smLoadingOv');
-  var txt = document.getElementById('smLoadingTxt');
   if (ov) ov.classList.add('show');
-  if (txt) txt.textContent = '데이터 불러오는 중...';
-  var msgTimer = setTimeout(function(){
-    if (txt) txt.textContent = '서버 응답 대기 중... (최초 접속 시 1분 내외 소요)';
-  }, 10000);
   smPost({action:'data', token:smSession.token})
   .then(function(res) {
-    clearTimeout(msgTimer);
     if (ov) ov.classList.remove('show');
     if (!res.ok || !res.hasData) { checkSavedDataOnStart(); return; }
     var bin=atob(res.fileBase64), buf=new ArrayBuffer(bin.length), view=new Uint8Array(buf);
@@ -2370,15 +2340,15 @@ function smLoadFromServer() {
       var data=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
       data.forEach(function(row){
         var n={}; Object.keys(row).forEach(function(k){n[k.trim()]=row[k];});
-        var date=parseDate(n['일자']||n['날짜']||''); if(!date) return;
-        var client=(n['발주처']||'').toString().trim(); if(!client) return;
+        var date=parseDate(n['\uc77c\uc790']||n['\ub0a0\uc9dc']||''); if(!date) return;
+        var client=(n['\ubc1c\uc8fc\uc815']||'').toString().trim(); if(!client) return;
         allRows.push({date:date,year:date.getFullYear(),month:date.getMonth()+1,
-          jobNo:n['작업번호']||'',client:client,
-          manager:(n['담당자']||'').toString().trim(),
-          subject:(n['건명']||'').toString().trim(),
-          phone:(n['핸드폰']||n['연락처']||'').toString().trim(),
-          tel:(n['일반전화']||'').toString().trim(),
-          email:(n['이메일']||'').toString().trim()});
+          jobNo:n['\uc791\uc5c5\ubc88\ud638']||'',client:client,
+          manager:(n['\ub2f4\ub2f9\uc790']||'').toString().trim(),
+          subject:(n['\uac74\uba85']||'').toString().trim(),
+          phone:(n['\ud578\ub4dc\ud3f0']||n['\uc5f0\ub77d\uc815']||'').toString().trim(),
+          tel:(n['\uc77c\ubc18\uc804\ud654']||'').toString().trim(),
+          email:(n['\uc774\uba54\uc77c']||'').toString().trim()});
       });
     });
     years=[...new Set(allRows.map(function(r){return r.year;}))].sort(function(a,b){return a-b;});
@@ -2388,42 +2358,13 @@ function smLoadFromServer() {
     var badge=document.getElementById('savedDataBadge');
     if(badge&&res.uploadedAt){
       var d=new Date(res.uploadedAt);
-      badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+      badge.textContent='\u2601 \uc11c\ubc84 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
       badge.style.display='inline-block';
     }
-    smCurrentUploadedAt = res.uploadedAt || '';
-    smStartDataWatch();
   })
-  .catch(function(){ clearTimeout(msgTimer); if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
+  .catch(function(){ if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
 }
 
-function smCheckServerUpdate() {
-  // 백그라운드에서 서버 업로드 시각만 확인 (데이터 전체 안 받음)
-  smPost({action:'data', token:smSession.token})
-  .then(function(res) {
-    if (!res.ok || !res.hasData) return;
-    smCurrentUploadedAt = res.uploadedAt || '';
-    var badge=document.getElementById('savedDataBadge');
-    if(badge&&res.uploadedAt){
-      var d=new Date(res.uploadedAt);
-      // 로컬 저장 시각과 비교
-      var meta = getSavedMeta();
-      if (meta && meta.savedAt) {
-        var serverTime = new Date(res.uploadedAt).getTime();
-        var localTime = new Date(meta.savedAt).getTime();
-        if (serverTime > localTime + 60000) {
-          // 서버가 1분 이상 최신 → 알림
-          smShowNewDataBadge(res.uploadedAt);
-          return;
-        }
-      }
-      badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-      badge.style.display='inline-block';
-    }
-    smStartDataWatch();
-  })
-  .catch(function(){});
-}
 function smLogout() {
   if (!confirm('\ub85c\uadf8\uc544\uc6c3 \ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) return;
   smClearSession(); location.reload();
@@ -2522,35 +2463,45 @@ function smClearSession(){sessionStorage.removeItem(SM_SK);}
 function smShowErr(msg){var el=document.getElementById('smErrMsg');if(!el)return;el.textContent=msg;el.style.display='block';var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display='none';}
 function smSetBusy(b){var btn=document.getElementById('smLoginBtn');if(btn)btn.disabled=b;var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display=b?'block':'none';var em=document.getElementById('smErrMsg');if(em&&b)em.style.display='none';}
 
-// ── 새 데이터 자동 감지 ──
+// 백그라운드 서버 확인 (로컬스토리지 있을 때)
 var smCurrentUploadedAt = '';
 var smWatchTimer = null;
-function smStartDataWatch() {
-  if (smWatchTimer) clearInterval(smWatchTimer);
-  smWatchTimer = setInterval(smCheckNewData, 5 * 60 * 1000);
-}
-function smCheckNewData() {
-  if (!smSession || !smSession.token) return;
+function smCheckServerInBackground() {
   smPost({action:'data', token:smSession.token})
   .then(function(res) {
-    if (!res.ok || !res.hasData || !smCurrentUploadedAt) return;
-    if (res.uploadedAt && res.uploadedAt !== smCurrentUploadedAt) {
-      smShowNewDataBadge(res.uploadedAt);
+    if (!res.ok || !res.hasData) return;
+    smCurrentUploadedAt = res.uploadedAt || '';
+    var badge = document.getElementById('savedDataBadge');
+    if (badge && res.uploadedAt) {
+      var meta = getSavedMeta();
+      var serverTime = new Date(res.uploadedAt).getTime();
+      var localTime = meta ? new Date(meta.savedAt).getTime() : 0;
+      if (serverTime > localTime + 60000) {
+        // 서버 데이터가 1분 이상 최신 → 알림 배지
+        var d = new Date(res.uploadedAt);
+        badge.textContent = '🔔 새 데이터 ' + d.getFullYear() + '.' + (d.getMonth()+1).toString().padStart(2,'0') + '.' + d.getDate().toString().padStart(2,'0') + '! 클릭하면 업데이트';
+        badge.style.background = 'rgba(255,184,48,.2)';
+        badge.style.color = '#ffb830';
+        badge.style.border = '1px solid rgba(255,184,48,.4)';
+        badge.style.cursor = 'pointer';
+        badge.style.fontWeight = '700';
+        badge.style.display = 'inline-block';
+        badge.onclick = function() {
+          if (confirm('새 데이터가 있습니다.\n재로그인하면 최신 데이터를 받습니다.\n재로그인 하시겠습니까?')) {
+            smClearSession(); location.reload();
+          }
+        };
+      } else {
+        var d2 = new Date(res.uploadedAt);
+        badge.textContent = '☁ 서버 ' + d2.getFullYear() + '.' + (d2.getMonth()+1).toString().padStart(2,'0') + '.' + d2.getDate().toString().padStart(2,'0');
+        badge.style.display = 'inline-block';
+      }
     }
-  }).catch(function(){});
-}
-function smShowNewDataBadge(uploadedAt) {
-  var badge = document.getElementById('savedDataBadge');
-  if (!badge) return;
-  var d = new Date(uploadedAt);
-  var ds = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
-  badge.textContent = '🔔 새 데이터 '+ds+'! 클릭하면 업데이트';
-  badge.style.cssText = 'display:inline-block;background:rgba(255,184,48,.2);color:#ffb830;border:1px solid rgba(255,184,48,.4);padding:4px 12px;border-radius:16px;cursor:pointer;font-weight:700;font-family:IBM Plex Mono,monospace;font-size:12px;animation:smPulse 2s infinite;';
-  badge.onclick = function() {
-    if (confirm('새 데이터가 있습니다.\n재로그인하면 최신 데이터를 받습니다.\n재로그인 하시겠습니까?')) {
-      smClearSession(); location.reload();
-    }
-  };
+    // 5분마다 자동 확인
+    if (smWatchTimer) clearInterval(smWatchTimer);
+    smWatchTimer = setInterval(smCheckServerInBackground, 5 * 60 * 1000);
+  })
+  .catch(function(){});
 }
 </script>
 
