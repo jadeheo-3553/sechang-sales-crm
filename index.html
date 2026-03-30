@@ -190,7 +190,6 @@ select.si{cursor:pointer;flex:none;}
 .popup-close{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:2px 8px;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
-</style>
 <style>
 #smLoginOverlay{display:flex;position:fixed;inset:0;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
 #smLoginOverlay.hidden{display:none;}
@@ -918,7 +917,7 @@ window.addEventListener('popstate',function(e){
 
 // On page load, check for hash in URL
 document.addEventListener('DOMContentLoaded', function(){
-  // 데이터 로드는 로그인 완료 후 smShowApp()에서 처리
+  // checkSavedDataOnStart는 smShowApp()에서 로그인 후 호출됨
   var hash=window.location.hash.replace('#','');
   var validTabs=['dashboard','expected','compare','history','trend','keyword','alert','manager','memo'];
   if(validTabs.includes(hash)){
@@ -2191,7 +2190,7 @@ function _renderAlertWithExport(){
   <div class="tab-content" id="tab-sm-admin">
     <div class="info-box">
       &#9881;&#65039; <strong>계정 관리</strong> — 관리자 전용 메뉴입니다.<br>
-      직원 계정 추가·삭제, 비밀번호 초기화, 접속 로그를 확인할 수 있습니다.
+      직원 계정 추가&#183;삭제, 비밀번호 초기화, 접속 로그를 확인할 수 있습니다.
     </div>
     <div class="g2" style="margin-bottom:18px;">
       <div class="section">
@@ -2247,10 +2246,14 @@ function _renderAlertWithExport(){
   </div>
 
 <script>
+// ══════════════════════════════════════════════════════
+// 영업 마스터 로그인 & 계정 관리 (최종)
+// ══════════════════════════════════════════════════════
 var SM_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzIrBAeI5L40e-HHglmhiKo5cGUdIaAWPIYXIl3mCngeLZaeb4Nrg-YLC4-PUI0X9R/exec';
-var SM_SK = 'sm_sess_v6';
+var SM_SK = 'sm_sess_v7';
 var smSession = null;
 
+// 페이지 로드 시 세션 확인
 window.addEventListener('load', function() {
   var saved = smGetSession();
   if (saved) { smSession = saved; smShowApp(); }
@@ -2258,9 +2261,12 @@ window.addEventListener('load', function() {
 });
 
 function smShowLogin() {
-  document.getElementById('smLoginOverlay').classList.remove('hidden');
-  document.getElementById('smUid').addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
-  document.getElementById('smPw').addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
+  var ov = document.getElementById('smLoginOverlay');
+  if (ov) ov.classList.remove('hidden');
+  var uid = document.getElementById('smUid');
+  var pw = document.getElementById('smPw');
+  if (uid) uid.addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
+  if (pw) pw.addEventListener('keydown', function(e){ if(e.key==='Enter') smDoLogin(); });
 }
 
 function smDoLogin() {
@@ -2277,28 +2283,31 @@ function smDoLogin() {
 }
 
 function smShowApp() {
-  document.getElementById('smLoginOverlay').classList.add('hidden');
-  var ub=document.getElementById('smUserBadge');
-  if(ub){ub.textContent='👤 '+(smSession.name||smSession.username);ub.style.display='inline-block';}
+  var ov = document.getElementById('smLoginOverlay');
+  if (ov) ov.classList.add('hidden');
+  var ub = document.getElementById('smUserBadge');
+  if (ub) { ub.textContent='\ud83d\udc64 '+(smSession.name||smSession.username); ub.style.display='inline-block'; }
   if (smSession.isAdmin) {
     var ab=document.getElementById('smAdminBadge'); if(ab) ab.style.display='inline-block';
     var ul=document.getElementById('smUploadLabel'); if(ul) ul.style.display='inline-block';
     var at=document.getElementById('smAdminTab'); if(at) at.style.display='inline-block';
   }
+  // 관리자 탭 클릭 이벤트
   document.querySelectorAll('.tab').forEach(function(t){
-    t.addEventListener('click',function(){ if(t.dataset.tab==='sm-admin') smAdminLoadAccounts(); });
+    t.addEventListener('click', function(){ if(t.dataset.tab==='sm-admin') smAdminLoadAccounts(); });
   });
-  if (smSession.isAdmin) {
-    var fi=document.getElementById('fileInput');
-    if(fi) fi.addEventListener('change', function(e){
-      var file=e.target.files[0]; if(!file) return;
-      var reader=new FileReader();
-      reader.onload=function(ev){
+  // 파일 업로드 이벤트 (관리자)
+  var fi = document.getElementById('fileInput');
+  if (fi && smSession.isAdmin) {
+    fi.addEventListener('change', function(e) {
+      var file = e.target.files[0]; if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
         var bytes=new Uint8Array(ev.target.result), bin='';
-        bytes.forEach(function(b){bin+=String.fromCharCode(b);});
-        smPost({action:'upload',token:smSession.token,fileName:file.name,fileData:btoa(bin)})
-        .then(function(res){ if(res.ok) alert('서버 업로드 완료!'); else alert('업로드 실패: '+(res.error||'오류')); })
-        .catch(function(e){alert('오류: '+e.message);});
+        bytes.forEach(function(b){ bin+=String.fromCharCode(b); });
+        smPost({action:'upload', token:smSession.token, fileName:file.name, fileData:btoa(bin)})
+        .then(function(res){ alert(res.ok ? '\u2705 서버 업로드 완료!' : '업로드 실패: '+(res.error||'오류')); })
+        .catch(function(e){ alert('오류: '+e.message); });
       };
       reader.readAsArrayBuffer(file);
     });
@@ -2307,13 +2316,14 @@ function smShowApp() {
 }
 
 function smLoadData() {
-  document.getElementById('smLoadingOv').classList.add('show');
+  var ov = document.getElementById('smLoadingOv');
+  if (ov) ov.classList.add('show');
   smPost({action:'data', token:smSession.token})
   .then(function(res) {
-    document.getElementById('smLoadingOv').classList.remove('show');
-    if (!res.ok||!res.hasData) { checkSavedDataOnStart(); return; }
+    if (ov) ov.classList.remove('show');
+    if (!res.ok || !res.hasData) { checkSavedDataOnStart(); return; }
     var bin=atob(res.fileBase64), buf=new ArrayBuffer(bin.length), view=new Uint8Array(buf);
-    for(var i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
+    for (var i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
     setLoading(50);
     var wb=XLSX.read(buf,{type:'array',cellDates:true});
     allRows=[];
@@ -2322,15 +2332,15 @@ function smLoadData() {
       var data=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
       data.forEach(function(row){
         var n={}; Object.keys(row).forEach(function(k){n[k.trim()]=row[k];});
-        var date=parseDate(n['일자']||n['날짜']||''); if(!date) return;
-        var client=(n['발주처']||'').toString().trim(); if(!client) return;
+        var date=parseDate(n['\uc77c\uc790']||n['\ub0a0\uc9dc']||''); if(!date) return;
+        var client=(n['\ubc1c\uc8fc\uc815']||'').toString().trim(); if(!client) return;
         allRows.push({date:date,year:date.getFullYear(),month:date.getMonth()+1,
-          jobNo:n['작업번호']||'',client:client,
-          manager:(n['담당자']||'').toString().trim(),
-          subject:(n['건명']||'').toString().trim(),
-          phone:(n['핸드폰']||n['연락처']||'').toString().trim(),
-          tel:(n['일반전화']||'').toString().trim(),
-          email:(n['이메일']||'').toString().trim()});
+          jobNo:n['\uc791\uc5c5\ubc88\ud638']||'',client:client,
+          manager:(n['\ub2f4\ub2f9\uc790']||'').toString().trim(),
+          subject:(n['\uac74\uba85']||'').toString().trim(),
+          phone:(n['\ud578\ub4dc\ud3f0']||n['\uc5f0\ub77d\uc815']||'').toString().trim(),
+          tel:(n['\uc77c\ubc18\uc804\ud654']||'').toString().trim(),
+          email:(n['\uc774\uba54\uc77c']||'').toString().trim()});
       });
     });
     years=[...new Set(allRows.map(function(r){return r.year;}))].sort(function(a,b){return a-b;});
@@ -2340,38 +2350,41 @@ function smLoadData() {
     var badge=document.getElementById('savedDataBadge');
     if(badge&&res.uploadedAt){
       var d=new Date(res.uploadedAt);
-      badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+      badge.textContent='\u2601 \uc11c\ubc84 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
       badge.style.display='inline-block';
     }
   })
-  .catch(function(){ document.getElementById('smLoadingOv').classList.remove('show'); checkSavedDataOnStart(); });
+  .catch(function(){ if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
 }
 
-function smLogout(){if(!confirm('로그아웃 하시겠습니까?'))return;smClearSession();location.reload();}
+function smLogout() {
+  if (!confirm('\ub85c\uadf8\uc544\uc6c3 \ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) return;
+  smClearSession(); location.reload();
+}
 
-function smAdminFetch(body){body.token=smSession?smSession.token:'';return smPost(body);}
+function smAdminFetch(body) { body.token=smSession?smSession.token:''; return smPost(body); }
 
-function smAdminLoadAccounts(){
-  document.getElementById('smAccountList').innerHTML='<div class="empty">불러오는 중...</div>';
+function smAdminLoadAccounts() {
+  document.getElementById('smAccountList').innerHTML='<div class="empty">\ubd88\ub7ec\uc624\ub294 \uc911...</div>';
   smAdminFetch({action:'getAccounts'}).then(function(res){
-    if(!res.ok){document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">오류: '+res.error+'</div>';return;}
+    if(!res.ok){document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">\uc624\ub958: '+res.error+'</div>';return;}
     var list=res.accounts||[];
-    if(!list.length){document.getElementById('smAccountList').innerHTML='<div class="empty">등록된 계정이 없습니다</div>';return;}
-    var html='<table class="data-table"><thead><tr><th>아이디</th><th>이름</th><th>권한</th><th>관리</th></tr></thead><tbody>';
+    if(!list.length){document.getElementById('smAccountList').innerHTML='<div class="empty">\ub4f1\ub85d\ub41c \uacc4\uc815\uc774 \uc5c6\uc2b5\ub2c8\ub2e4</div>';return;}
+    var html='<table class="data-table"><thead><tr><th>\uc544\uc774\ub514</th><th>\uc774\ub984</th><th>\uad8c\ud55c</th><th>\uad00\ub9ac</th></tr></thead><tbody>';
     list.forEach(function(a){
       var isSelf=smSession&&a.username===smSession.username;
-      var role=a.isAdmin?'<span class="tag yellow">관리자</span>':'<span class="tag blue">직원</span>';
+      var role=a.isAdmin?'<span class="tag yellow">\uad00\ub9ac\uc790</span>':'<span class="tag blue">\uc9c1\uc6d0</span>';
       var uid=a.username.replace(/['"<>&]/g,''), nm=a.name.replace(/['"<>&]/g,'');
       html+='<tr><td class="mono">'+a.username+'</td><td style="font-weight:600">'+a.name+'</td><td>'+role+'</td><td style="display:flex;gap:6px;flex-wrap:wrap;">';
-      if(isSelf){html+='<span style="font-size:12px;color:var(--text3)">(본인)</span>';}
+      if(isSelf){html+='<span style="font-size:12px;color:var(--text3)">(\ubcf8\uc778)</span>';}
       else{
-        html+='<button class="btn sec" style="padding:4px 10px;font-size:12px;" data-uid="'+uid+'" data-nm="'+nm+'" onclick="smAdminResetPw(this.dataset.uid,this.dataset.nm)">비번초기화</button>';
-        html+='<button style="background:var(--red-bg);color:var(--red);border:1px solid rgba(255,85,119,.3);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;" data-uid="'+uid+'" data-nm="'+nm+'" onclick="smAdminDelete(this.dataset.uid,this.dataset.nm)">삭제</button>';
+        html+='<button class="btn sec" style="padding:4px 10px;font-size:12px;" data-uid="'+uid+'" data-nm="'+nm+'" onclick="smAdminResetPw(this.dataset.uid,this.dataset.nm)">\ube44\ubc88\ucd08\uae30\ud654</button>';
+        html+='<button style="background:var(--red-bg);color:var(--red);border:1px solid rgba(255,85,119,.3);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;" data-uid="'+uid+'" data-nm="'+nm+'" onclick="smAdminDelete(this.dataset.uid,this.dataset.nm)">\uc0ad\uc81c</button>';
       }
       html+='</td></tr>';
     });
     document.getElementById('smAccountList').innerHTML=html+'</tbody></table>';
-  }).catch(function(e){document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">오류: '+e.message+'</div>';});
+  }).catch(function(e){document.getElementById('smAccountList').innerHTML='<div class="empty" style="color:var(--red)">\uc624\ub958: '+e.message+'</div>';});
 }
 
 function smAdminAddAccount(){
@@ -2379,52 +2392,52 @@ function smAdminAddAccount(){
   var name=(document.getElementById('smNewName').value||'').trim();
   var pw=(document.getElementById('smNewPw').value||'').trim();
   var isAdm=document.getElementById('smNewIsAdmin').checked;
-  if(!uid||!name||!pw){smShowAddMsg('error','모든 항목을 입력하세요.');return;}
-  if(!/^[a-z0-9_]+$/.test(uid)){smShowAddMsg('error','아이디는 영문 소문자, 숫자, _만 가능합니다.');return;}
-  if(pw.length<4){smShowAddMsg('error','비밀번호는 4자 이상이어야 합니다.');return;}
-  smShowAddMsg('loading','추가 중...');
+  if(!uid||!name||!pw){smShowAddMsg('error','\ubaa8\ub4e0 \ud56d\ubaa9\uc744 \uc785\ub825\ud558\uc138\uc694.');return;}
+  if(!/^[a-z0-9_]+$/.test(uid)){smShowAddMsg('error','\uc544\uc774\ub514\ub294 \uc601\ubb38 \uc18c\ubb38\uc790, \uc22b\uc790, _\ub9cc \uac00\ub2a5\ud569\ub2c8\ub2e4.');return;}
+  if(pw.length<4){smShowAddMsg('error','\ube44\ubc00\ubc88\ud638\ub294 4\uc790 \uc774\uc0c1\uc774\uc5b4\uc57c \ud569\ub2c8\ub2e4.');return;}
+  smShowAddMsg('loading','\ucd94\uac00 \uc911...');
   smAdminFetch({action:'addAccount',username:uid,name:name,password:pw,isAdmin:isAdm})
   .then(function(res){
-    if(res.ok){smShowAddMsg('ok','['+name+'] 계정 추가 완료! (아이디: '+uid+')');document.getElementById('smNewId').value='';document.getElementById('smNewName').value='';document.getElementById('smNewPw').value='';document.getElementById('smNewIsAdmin').checked=false;smAdminLoadAccounts();}
-    else{smShowAddMsg('error',res.error||'추가 실패');}
-  }).catch(function(e){smShowAddMsg('error','오류: '+e.message);});
+    if(res.ok){smShowAddMsg('ok','['+name+'] \uacc4\uc815 \ucd94\uac00 \uc644\ub8cc! (\uc544\uc774\ub514: '+uid+')');document.getElementById('smNewId').value='';document.getElementById('smNewName').value='';document.getElementById('smNewPw').value='';document.getElementById('smNewIsAdmin').checked=false;smAdminLoadAccounts();}
+    else{smShowAddMsg('error',res.error||'\ucd94\uac00 \uc2e4\ud328');}
+  }).catch(function(e){smShowAddMsg('error','\uc624\ub958: '+e.message);});
 }
 
 function smAdminResetPw(uid,name){
-  var newPw=prompt('['+name+'] 새 비밀번호 입력 (4자 이상):','');
+  var newPw=prompt('['+name+'] \uc0c8 \ube44\ubc00\ubc88\ud638 \uc785\ub825 (4\uc790 \uc774\uc0c1):','');
   if(newPw===null)return;
-  if(!newPw||newPw.trim().length<4){alert('4자 이상 입력하세요.');return;}
+  if(!newPw||newPw.trim().length<4){alert('4\uc790 \uc774\uc0c1 \uc785\ub825\ud558\uc138\uc694.');return;}
   smAdminFetch({action:'resetPassword',username:uid,newPassword:newPw.trim()})
-  .then(function(res){if(res.ok)alert('['+name+'] 비밀번호 초기화 완료! 새 비밀번호: '+newPw.trim());else alert('실패: '+(res.error||'오류'));})
-  .catch(function(e){alert('오류: '+e.message);});
+  .then(function(res){alert(res.ok?'['+name+'] \ube44\ubc00\ubc88\ud638 \ucd08\uae30\ud654 \uc644\ub8cc! \uc0c8 \ube44\ubc00\ubc88\ud638: '+newPw.trim():'\uc2e4\ud328: '+(res.error||'\uc624\ub958'));})
+  .catch(function(e){alert('\uc624\ub958: '+e.message);});
 }
 
 function smAdminDelete(uid,name){
-  if(!confirm('['+name+' ('+uid+')] 계정을 삭제하시겠습니까?'))return;
+  if(!confirm('['+name+' ('+uid+')] \uacc4\uc815\uc744 \uc0ad\uc81c\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?'))return;
   smAdminFetch({action:'deleteAccount',username:uid})
-  .then(function(res){if(res.ok){alert('['+name+'] 삭제 완료');smAdminLoadAccounts();}else alert('실패: '+(res.error||'오류'));})
-  .catch(function(e){alert('오류: '+e.message);});
+  .then(function(res){if(res.ok){alert('['+name+'] \uc0ad\uc81c \uc644\ub8cc');smAdminLoadAccounts();}else alert('\uc2e4\ud328: '+(res.error||'\uc624\ub958'));})
+  .catch(function(e){alert('\uc624\ub958: '+e.message);});
 }
 
 function smAdminLoadLogs(){
   var limit=parseInt(document.getElementById('smLogLimit').value)||30;
-  document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty">불러오는 중...</td></tr>';
+  document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty">\ubd88\ub7ec\uc624\ub294 \uc911...</td></tr>';
   smAdminFetch({action:'getLogs',limit:limit}).then(function(res){
-    if(!res.ok){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">오류: '+res.error+'</td></tr>';return;}
+    if(!res.ok){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">\uc624\ub958: '+res.error+'</td></tr>';return;}
     var logs=res.logs||[];
-    if(!logs.length){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty">로그 없음</td></tr>';return;}
+    if(!logs.length){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty">\ub85c\uadf8 \uc5c6\uc74c</td></tr>';return;}
     var html='';
     logs.forEach(function(log){
       var tag='<span class="tag gray">'+log.action+'</span>';
-      if(log.action==='login')tag='<span class="tag green">로그인</span>';
-      else if((log.action||'').startsWith('upload'))tag='<span class="tag blue">업로드</span>';
-      else if(log.action==='addAccount')tag='<span class="tag yellow">계정추가</span>';
-      else if(log.action==='deleteAccount')tag='<span class="tag red">계정삭제</span>';
-      else if(log.action==='resetPassword')tag='<span class="tag orange">비번초기화</span>';
+      if(log.action==='login')tag='<span class="tag green">\ub85c\uadf8\uc778</span>';
+      else if((log.action||'').startsWith('upload'))tag='<span class="tag blue">\uc5c5\ub85c\ub4dc</span>';
+      else if(log.action==='addAccount')tag='<span class="tag yellow">\uacc4\uc815\ucd94\uac00</span>';
+      else if(log.action==='deleteAccount')tag='<span class="tag red">\uacc4\uc815\uc0ad\uc81c</span>';
+      else if(log.action==='resetPassword')tag='<span class="tag orange">\ube44\ubc88\ucd08\uae30\ud654</span>';
       html+='<tr><td class="mono" style="font-size:12px;">'+log.time+'</td><td class="mono">'+log.username+'</td><td>'+log.name+'</td><td>'+tag+'</td><td style="font-size:12px;color:var(--text3)">'+log.detail+'</td></tr>';
     });
     document.getElementById('smLogBody').innerHTML=html;
-  }).catch(function(e){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">오류: '+e.message+'</td></tr>';});
+  }).catch(function(e){document.getElementById('smLogBody').innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">\uc624\ub958: '+e.message+'</td></tr>';});
 }
 
 function smShowAddMsg(type,msg){
