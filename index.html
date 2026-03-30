@@ -2330,11 +2330,17 @@ function smShowApp() {
 
 function smLoadData() {
   var ov = document.getElementById('smLoadingOv');
+  var txt = document.getElementById('smLoadingTxt');
   if (ov) ov.classList.add('show');
+  if (txt) txt.textContent = '데이터 불러오는 중...';
+  // 10초 후 안내 메시지 변경
+  var msgTimer = setTimeout(function(){
+    if (txt) txt.textContent = '서버 응답 대기 중... (최초 접속 시 1분 내외 소요)';
+  }, 10000);
   smPost({action:'data', token:smSession.token})
   .then(function(res) {
     if (ov) ov.classList.remove('show');
-    if (!res.ok || !res.hasData) { checkSavedDataOnStart(); return; }
+    if (!res.ok || !res.hasData) { clearTimeout(msgTimer); checkSavedDataOnStart(); return; }
     var bin=atob(res.fileBase64), buf=new ArrayBuffer(bin.length), view=new Uint8Array(buf);
     for (var i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
     setLoading(50);
@@ -2368,8 +2374,9 @@ function smLoadData() {
     }
     smCurrentUploadedAt = res.uploadedAt || '';
     smStartDataWatch();
+    clearTimeout(msgTimer);
   })
-  .catch(function(){ if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
+  .catch(function(){ clearTimeout(msgTimer); if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
 }
 function smLogout() {
   if (!confirm('\ub85c\uadf8\uc544\uc6c3 \ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) return;
