@@ -2329,18 +2329,37 @@ function smShowApp() {
 }
 
 function smLoadData() {
+  // 1단계: 로컬스토리지 데이터가 있으면 즉시 앱 표시
+  var hasSaved = (function(){
+    try { return !!localStorage.getItem('salesmaster_data_v2'); } catch(e){ return false; }
+  })();
+
+  if (hasSaved) {
+    // 로컬스토리지 데이터로 즉시 앱 표시
+    if (loadFromStorage()) {
+      // 백그라운드에서 서버 최신 데이터 확인
+      smCheckServerUpdate();
+      return;
+    }
+  }
+
+  // 로컬스토리지 없으면 서버에서 로드
+  smLoadFromServer();
+}
+
+function smLoadFromServer() {
   var ov = document.getElementById('smLoadingOv');
   var txt = document.getElementById('smLoadingTxt');
   if (ov) ov.classList.add('show');
   if (txt) txt.textContent = '데이터 불러오는 중...';
-  // 10초 후 안내 메시지 변경
   var msgTimer = setTimeout(function(){
     if (txt) txt.textContent = '서버 응답 대기 중... (최초 접속 시 1분 내외 소요)';
   }, 10000);
   smPost({action:'data', token:smSession.token})
   .then(function(res) {
+    clearTimeout(msgTimer);
     if (ov) ov.classList.remove('show');
-    if (!res.ok || !res.hasData) { clearTimeout(msgTimer); checkSavedDataOnStart(); return; }
+    if (!res.ok || !res.hasData) { checkSavedDataOnStart(); return; }
     var bin=atob(res.fileBase64), buf=new ArrayBuffer(bin.length), view=new Uint8Array(buf);
     for (var i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
     setLoading(50);
@@ -2374,9 +2393,36 @@ function smLoadData() {
     }
     smCurrentUploadedAt = res.uploadedAt || '';
     smStartDataWatch();
-    clearTimeout(msgTimer);
   })
   .catch(function(){ clearTimeout(msgTimer); if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
+}
+
+function smCheckServerUpdate() {
+  // 백그라운드에서 서버 업로드 시각만 확인 (데이터 전체 안 받음)
+  smPost({action:'data', token:smSession.token})
+  .then(function(res) {
+    if (!res.ok || !res.hasData) return;
+    smCurrentUploadedAt = res.uploadedAt || '';
+    var badge=document.getElementById('savedDataBadge');
+    if(badge&&res.uploadedAt){
+      var d=new Date(res.uploadedAt);
+      // 로컬 저장 시각과 비교
+      var meta = getSavedMeta();
+      if (meta && meta.savedAt) {
+        var serverTime = new Date(res.uploadedAt).getTime();
+        var localTime = new Date(meta.savedAt).getTime();
+        if (serverTime > localTime + 60000) {
+          // 서버가 1분 이상 최신 → 알림
+          smShowNewDataBadge(res.uploadedAt);
+          return;
+        }
+      }
+      badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+      badge.style.display='inline-block';
+    }
+    smStartDataWatch();
+  })
+  .catch(function(){});
 }
 function smLogout() {
   if (!confirm('\ub85c\uadf8\uc544\uc6c3 \ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) return;
