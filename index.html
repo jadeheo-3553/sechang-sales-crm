@@ -210,6 +210,7 @@ select.si{cursor:pointer;flex:none;}
 #smLoadingOv.show{display:flex;}
 .sm-spinner{width:44px;height:44px;border:3px solid #3a4260;border-top-color:#00d4ff;border-radius:50%;animation:smSpin .8s linear infinite;}
 @keyframes smSpin{to{transform:rotate(360deg);}}
+@keyframes smPulse{0%,100%{opacity:1;}50%{opacity:.65;}}
 .sm-stxt{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#b0bcdb;}
 </style>
 </head>
@@ -2353,6 +2354,10 @@ function smLoadData() {
       badge.textContent='\u2601 \uc11c\ubc84 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
       badge.style.display='inline-block';
     }
+    // 현재 로드된 서버 업로드 시각 저장 (새 데이터 감지용)
+    smCurrentUploadedAt = res.uploadedAt || '';
+    // 5분마다 새 데이터 감지 시작
+    smStartDataWatch();
   })
   .catch(function(){ if(ov) ov.classList.remove('show'); checkSavedDataOnStart(); });
 }
@@ -2454,6 +2459,51 @@ function smGetSession(){try{var s=JSON.parse(sessionStorage.getItem(SM_SK));if(!
 function smClearSession(){sessionStorage.removeItem(SM_SK);}
 function smShowErr(msg){var el=document.getElementById('smErrMsg');if(!el)return;el.textContent=msg;el.style.display='block';var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display='none';}
 function smSetBusy(b){var btn=document.getElementById('smLoginBtn');if(btn)btn.disabled=b;var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display=b?'block':'none';var em=document.getElementById('smErrMsg');if(em&&b)em.style.display='none';}
+
+// ── 새 데이터 자동 감지 ──────────────────────────────
+var smCurrentUploadedAt = '';
+var smWatchTimer = null;
+
+function smStartDataWatch() {
+  if (smWatchTimer) clearInterval(smWatchTimer);
+  // 5분마다 서버 확인
+  smWatchTimer = setInterval(smCheckNewData, 5 * 60 * 1000);
+}
+
+function smCheckNewData() {
+  if (!smSession || !smSession.token) return;
+  smPost({action:'data', token:smSession.token})
+  .then(function(res) {
+    if (!res.ok || !res.hasData) return;
+    if (!smCurrentUploadedAt) return;
+    // 서버의 최신 업로드 시각과 현재 로드된 시각 비교
+    if (res.uploadedAt && res.uploadedAt !== smCurrentUploadedAt) {
+      smShowNewDataBadge(res.uploadedAt);
+    }
+  })
+  .catch(function(){});
+}
+
+function smShowNewDataBadge(uploadedAt) {
+  var badge = document.getElementById('savedDataBadge');
+  if (!badge) return;
+  var d = new Date(uploadedAt);
+  var dateStr = d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+  badge.textContent = '\ud83d\udd14 \uc0c8 \ub370\uc774\ud130 ' + dateStr + '! \ud074\ub9ad\ud558\uba74 \uc5c5\ub370\uc774\ud2b8';
+  badge.style.background = 'rgba(255,184,48,.2)';
+  badge.style.color = '#ffb830';
+  badge.style.border = '1px solid rgba(255,184,48,.4)';
+  badge.style.cursor = 'pointer';
+  badge.style.fontWeight = '700';
+  badge.style.animation = 'smPulse 2s infinite';
+  badge.onclick = function() {
+    if (confirm('\uc0c8 \ub370\uc774\ud130\uac00 \uc788\uc2b5\ub2c8\ub2e4.\n\uc9c0\uae08 \uc7ac\ub85c\uadf8\uc778\ud558\uba74 \ucd5c\uc2e0 \ub370\uc774\ud130\ub97c \ubc1b\uc544\uc635\ub2c8\ub2e4.\n\uc7ac\ub85c\uadf8\uc778 \ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) {
+      smClearSession();
+      location.reload();
+    }
+  };
+  badge.style.display = 'inline-block';
+}
 </script>
 
 </body>
