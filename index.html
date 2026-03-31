@@ -2386,7 +2386,7 @@ function smCheckServer() {
     if (serverT > localT + 60000) {
       badge.textContent = '🔔 새 데이터 '+ds+'! 클릭→업데이트';
       badge.style.cssText = 'display:inline-block;background:rgba(255,184,48,.2);color:#ffb830;border:1px solid rgba(255,184,48,.4);padding:4px 12px;border-radius:16px;cursor:pointer;font-weight:700;font-family:IBM Plex Mono,monospace;font-size:12px;';
-      badge.onclick = function() { if(confirm('새 데이터가 있습니다. 재로그인하시겠습니까?')) { smClearSession(); location.reload(); } };
+      badge.onclick = function() { if(confirm('새 데이터가 있습니다. 재로그인하시겠습니까?')) { try{localStorage.removeItem('salesmaster_data_v2');localStorage.removeItem('salesmaster_meta_v2');}catch(e){} smClearSession(); location.reload(); } };
     } else {
       badge.textContent = '☁ 서버 '+ds;
       badge.style.display = 'inline-block';
