@@ -232,7 +232,7 @@ select.si{cursor:pointer;flex:none;}
   <div class="sm-spinner"></div>
   <div class="sm-stxt" id="smLoadingTxt">데이터 불러오는 중...</div>
 </div>
-<script>(function(){var s=document.createElement("style");s.textContent="#uploadZone,#appZone,header{display:none}";document.head.appendChild(s);})();</script>
+<script>(function(){var s=document.createElement("style");s.textContent="#uploadZone,#appZone{display:none}";document.head.appendChild(s);})();</script>
 <div id="loadingBar" style="width:0%"></div>
 <header>
   <div class="logo">SALES<em>/</em>MASTER <span style="color:var(--text3);font-size:12px;letter-spacing:1px;">디자인세창</span></div>
@@ -2288,7 +2288,7 @@ function smDoLogin() {
 
 function smShowApp() {
   var header = document.querySelector('header');
-  if (header) header.style.display = '';
+  if (header) header.style.display = 'flex';
   var ov = document.getElementById('smLoginOverlay');
   if (ov) ov.classList.add('hidden');
   var ub = document.getElementById('smUserBadge');
