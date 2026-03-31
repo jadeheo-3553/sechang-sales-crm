@@ -191,7 +191,7 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:2147483647;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
 #smLoginOverlay.hidden{display:none!important;}
 #smLoginOverlay.hidden{display:none;}
 .sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);margin:auto;}
@@ -232,7 +232,7 @@ select.si{cursor:pointer;flex:none;}
   <div class="sm-spinner"></div>
   <div class="sm-stxt" id="smLoadingTxt">데이터 불러오는 중...</div>
 </div>
-<script>(function(){var s=document.createElement("style");s.textContent="#uploadZone,#appZone{display:none}";document.head.appendChild(s);})();</script>
+<script>(function(){var s=document.createElement("style");s.textContent="#uploadZone,#appZone,header{display:none}";document.head.appendChild(s);})();</script>
 <div id="loadingBar" style="width:0%"></div>
 <header>
   <div class="logo">SALES<em>/</em>MASTER <span style="color:var(--text3);font-size:12px;letter-spacing:1px;">디자인세창</span></div>
@@ -2263,6 +2263,8 @@ window.addEventListener('load', function() {
 });
 
 function smShowLogin() {
+  var header = document.querySelector('header');
+  if (header) header.style.display = 'none';
   var ov = document.getElementById('smLoginOverlay');
   if (ov) ov.classList.remove('hidden');
   var uid = document.getElementById('smUid');
@@ -2285,6 +2287,8 @@ function smDoLogin() {
 }
 
 function smShowApp() {
+  var header = document.querySelector('header');
+  if (header) header.style.display = '';
   var ov = document.getElementById('smLoginOverlay');
   if (ov) ov.classList.add('hidden');
   var ub = document.getElementById('smUserBadge');
