@@ -2347,15 +2347,15 @@ function smLoadData() {
       var data=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
       data.forEach(function(row){
         var n={}; Object.keys(row).forEach(function(k){n[k.trim()]=row[k];});
-        var date=parseDate(n['\uc77c\uc790']||n['\ub0a0\uc9dc']||''); if(!date) return;
-        var client=(n['\ubc1c\uc8fc\uc815']||'').toString().trim(); if(!client) return;
+        var date=parseDate(n['일자']||n['날짜']||''); if(!date) return;
+        var client=(n['발주처']||'').toString().trim(); if(!client) return;
         allRows.push({date:date,year:date.getFullYear(),month:date.getMonth()+1,
-          jobNo:n['\uc791\uc5c5\ubc88\ud638']||'',client:client,
-          manager:(n['\ub2f4\ub2f9\uc790']||'').toString().trim(),
-          subject:(n['\uac74\uba85']||'').toString().trim(),
-          phone:(n['\ud578\ub4dc\ud3f0']||n['\uc5f0\ub77d\uc815']||'').toString().trim(),
-          tel:(n['\uc77c\ubc18\uc804\ud654']||'').toString().trim(),
-          email:(n['\uc774\uba54\uc77c']||'').toString().trim()});
+          jobNo:n['작업번호']||'',client:client,
+          manager:(n['담당자']||'').toString().trim(),
+          subject:(n['건명']||'').toString().trim(),
+          phone:(n['핸드폰']||n['연락처']||'').toString().trim(),
+          tel:(n['일반전화']||'').toString().trim(),
+          email:(n['이메일']||'').toString().trim()});
       });
     });
     years=[...new Set(allRows.map(function(r){return r.year;}))].sort(function(a,b){return a-b;});
@@ -2365,7 +2365,7 @@ function smLoadData() {
     var badge=document.getElementById('savedDataBadge');
     if(badge&&res.uploadedAt){
       var d=new Date(res.uploadedAt);
-      badge.textContent='\u2601 \uc11c\ubc84 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
+      badge.textContent='☁ 서버 '+d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');
       badge.style.display='inline-block';
     }
   })
