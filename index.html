@@ -191,12 +191,10 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-body.sm-login-mode #smLoginOverlay{display:flex;}
-body.sm-login-mode header,body.sm-login-mode #loadingBar,body.sm-login-mode #uploadZone,body.sm-login-mode #appZone,body.sm-login-mode #popupOverlay{display:none!important;}
-body.sm-app-mode #smLoginOverlay{display:none!important;}
-#smLoginOverlay{display:none;min-height:100vh;width:100%;background:#0d0f14;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay.hidden{display:none!important;}
 #smLoginOverlay.hidden{display:none;}
-.sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);margin:auto;}
 .sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
 .sm-llogo em{color:#7a8ab0;font-style:normal;}
 .sm-lco{text-align:center;font-size:13px;color:#7a8ab0;font-family:'IBM Plex Mono',monospace;margin-bottom:40px;letter-spacing:1px;}
@@ -216,7 +214,7 @@ body.sm-app-mode #smLoginOverlay{display:none!important;}
 .sm-stxt{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#b0bcdb;}
 </style>
 </head>
-<body class="sm-login-mode">
+<body>
 <div id="smLoginOverlay">
   <div class="sm-lcard">
     <div class="sm-llogo">SALES<em>/</em>MASTER</div>
@@ -234,6 +232,7 @@ body.sm-app-mode #smLoginOverlay{display:none!important;}
   <div class="sm-spinner"></div>
   <div class="sm-stxt" id="smLoadingTxt">데이터 불러오는 중...</div>
 </div>
+<script>(function(){var s=document.createElement("style");s.textContent="#uploadZone,#appZone{display:none}";document.head.appendChild(s);})();</script>
 <div id="loadingBar" style="width:0%"></div>
 <header>
   <div class="logo">SALES<em>/</em>MASTER <span style="color:var(--text3);font-size:12px;letter-spacing:1px;">디자인세창</span></div>
@@ -2264,7 +2263,6 @@ window.addEventListener('load', function() {
 });
 
 function smShowLogin() {
-  document.body.className = 'sm-login-mode';
   var ov = document.getElementById('smLoginOverlay');
   if (ov) ov.classList.remove('hidden');
   var uid = document.getElementById('smUid');
@@ -2287,7 +2285,6 @@ function smDoLogin() {
 }
 
 function smShowApp() {
-  document.body.className = 'sm-app-mode';
   var ov = document.getElementById('smLoginOverlay');
   if (ov) ov.classList.add('hidden');
   var ub = document.getElementById('smUserBadge');
