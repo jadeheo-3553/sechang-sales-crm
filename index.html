@@ -2311,13 +2311,14 @@ function smShowApp() {
       var file = e.target.files[0]; if (!file) return;
       var reader = new FileReader();
       reader.onload = function(ev) {
-        var bytes=new Uint8Array(ev.target.result), bin='';
-        bytes.forEach(function(b){ bin+=String.fromCharCode(b); });
-        smPost({action:'upload', token:smSession.token, fileName:file.name, fileData:btoa(bin)})
-        .then(function(res){ alert(res.ok ? '\u2705 서버 업로드 완료!' : '업로드 실패: '+(res.error||'오류')); })
+        // readAsDataURL로 base64 직접 추출 (대용량 파일 안전)
+        var dataUrl = ev.target.result;
+        var base64 = dataUrl.split(',')[1];
+        smPost({action:'upload', token:smSession.token, fileName:file.name, fileData:base64})
+        .then(function(res){ alert(res.ok ? '✅ 서버 업로드 완료!' : '업로드 실패: '+(res.error||'오류')); })
         .catch(function(e){ alert('오류: '+e.message); });
       };
-      reader.readAsArrayBuffer(file);
+      reader.readAsDataURL(file);
     });
   }
   switchTab('dashboard', false);
