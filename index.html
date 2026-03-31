@@ -191,8 +191,8 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-#smLoginOverlay{display:flex!important;position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;background:#0d0f14!important;z-index:2147483647!important;align-items:center!important;justify-content:center!important;font-family:'Noto Sans KR',sans-serif!important;}
-#smLoginOverlay.hidden{display:none;}
+#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:99999;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay.hidden{display:none!important;}
 .sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 .sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
 .sm-llogo em{color:#7a8ab0;font-style:normal;}
@@ -2271,8 +2271,8 @@ window.addEventListener('load', function() {
 function smShowLogin() {
   var ov = document.getElementById('smLoginOverlay');
   if (ov) {
+    ov.style.cssText = '';
     ov.classList.remove('hidden');
-    ov.style.cssText = 'display:flex!important;position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;background:#0d0f14!important;z-index:2147483647!important;align-items:center!important;justify-content:center!important;';
   }
   var uid = document.getElementById('smUid');
   var pw = document.getElementById('smPw');
@@ -2295,7 +2295,10 @@ function smDoLogin() {
 
 function smShowApp() {
   var ov = document.getElementById('smLoginOverlay');
-  if (ov) ov.classList.add('hidden');
+  if (ov) {
+    ov.style.cssText = '';
+    ov.classList.add('hidden');
+  }
   var ub = document.getElementById('smUserBadge');
   if (ub) { ub.textContent='\ud83d\udc64 '+(smSession.name||smSession.username); ub.style.display='inline-block'; }
   if (smSession.isAdmin) {
