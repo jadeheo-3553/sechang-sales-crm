@@ -293,7 +293,7 @@ select.si{cursor:pointer;flex:none;}
     <div class="tab" data-tab="alert">🚨 이탈 감지 <span class="badge" id="alertBadge">0</span></div>
     <div class="tab" data-tab="manager">👤 담당자 분석</div>
     <div class="tab" data-tab="memo">📝 메모·태그</div>
-    <div class="tab" id="smAdminTab" data-tab="sm-admin" style="display:none;">&#9881;&#65039; 계정 관리</div>
+    <div class="tab" id="smAdminTab" data-tab="sm-admin" style="display:none;margin-left:auto;color:#ffb830;border-bottom-color:transparent;">&#9881;&#65039; 계정 관리</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -2298,7 +2298,7 @@ function smShowApp() {
   if (smSession.isAdmin) {
     var ab=document.getElementById('smAdminBadge'); if(ab) ab.style.display='inline-block';
     var ul=document.getElementById('smUploadLabel'); if(ul) ul.style.display='inline-block';
-    var at=document.getElementById('smAdminTab'); if(at) at.style.display='inline-block';
+    var at=document.getElementById('smAdminTab'); if(at){at.style.display='inline-block';at.style.marginLeft='auto';at.style.color='#ffb830';}
   }
   // 관리자 탭 클릭 이벤트
   document.querySelectorAll('.tab').forEach(function(t){
