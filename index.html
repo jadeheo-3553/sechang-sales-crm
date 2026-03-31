@@ -191,10 +191,10 @@ select.si{cursor:pointer;flex:none;}
 .popup-close:hover{color:var(--text);}
 .popup-body{overflow-y:auto;overflow-x:auto;flex:1;}
 <style>
-#smLoginOverlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0d0f14;z-index:2147483647;align-items:center;justify-content:center;font-family:'Noto Sans KR',sans-serif;}
+#smLoginOverlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#0d0f14;z-index:2147483647;font-family:'Noto Sans KR',sans-serif;overflow-y:auto;}
 #smLoginOverlay.hidden{display:none!important;}
 #smLoginOverlay.hidden{display:none;}
-.sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);margin:auto;}
+.sm-lcard{background:#1a1e2a;border:1px solid #3a4260;border-radius:20px;padding:52px 44px;max-width:420px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.5);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
 .sm-llogo{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#00d4ff;letter-spacing:3px;text-align:center;margin-bottom:6px;}
 .sm-llogo em{color:#7a8ab0;font-style:normal;}
 .sm-lco{text-align:center;font-size:13px;color:#7a8ab0;font-family:'IBM Plex Mono',monospace;margin-bottom:40px;letter-spacing:1px;}
