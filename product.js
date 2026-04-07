@@ -43,7 +43,7 @@ function _getProductTabHTML() {
           <option value="all">전체 기간</option>
         </select>
       </div>
-      <div style="padding:20px;position:relative;height:320px;"><canvas id="productSizeChart"></canvas></div>
+      <div style="padding:20px;position:relative;height:520px;"><canvas id="productSizeChart"></canvas></div>
       <div style="overflow-x:auto;overflow-y:auto;max-height:200px;"><table class="data-table" id="productSizeTable"></table></div>
     </div>
 
@@ -132,7 +132,8 @@ function productRenderSize() {
           label: '주문 건수',
           data: sorted.map(function(e) { return e[1]; }),
           backgroundColor: sorted.map(function(_, i) { return ['#00d4ff','#44e87a','#ffb830','#ff5577','#c084fc','#ff8c42','#38bdf8','#fbbf24','#6ee7b7','#f472b6','#34d399','#a78bfa','#fb923c','#60a5fa','#4ade80'][i] + 'BB'; }),
-          borderRadius: 5, borderWidth: 0
+          borderRadius: 5, borderWidth: 0,
+          barThickness: 24
         }]
       },
       options: {
@@ -140,9 +141,13 @@ function productRenderSize() {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { ticks: { color: '#b0bcdb' }, grid: { color: '#3a4260' } },
-          y: { ticks: { color: '#b0bcdb', font: { size: 13 } }, grid: { display: false } }
-        }
+          x: { ticks: { color: '#b0bcdb', font: { size: 13 } }, grid: { color: '#3a4260' } },
+          y: {
+            ticks: { color: '#b0bcdb', font: { size: 14 }, padding: 8 },
+            grid: { display: false }
+          }
+        },
+        layout: { padding: { left: 10, right: 20, top: 10, bottom: 10 } }
       }
     });
   } else if (ctx) {
