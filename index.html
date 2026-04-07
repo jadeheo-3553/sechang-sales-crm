@@ -2493,6 +2493,8 @@ function smClearSession(){sessionStorage.removeItem(SM_SK);}
 function smShowErr(msg){var el=document.getElementById('smErrMsg');if(!el)return;el.textContent=msg;el.style.display='block';var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display='none';}
 function smSetBusy(b){var btn=document.getElementById('smLoginBtn');if(btn)btn.disabled=b;var lm=document.getElementById('smLoadingMsg');if(lm)lm.style.display=b?'block':'none';var em=document.getElementById('smErrMsg');if(em&&b)em.style.display='none';}
 </script>
-
+<script src="patch.js"></script>
+<script src="sales.js"></script>
+<script src="product.js"></script>
 </body>
 </html>
