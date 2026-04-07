@@ -84,7 +84,7 @@ window.loadFile = function(file) {
             tel: (n['일반전화'] || '').toString().trim(),
             email: (n['이메일'] || '').toString().trim(),
             size: (n['사이즈'] || '').toString().trim(),
-            page: (n['페이지'] || '').toString().trim(),
+            page: (n['페이지'] !== undefined && n['페이지'] !== '') ? String(parseFloat(n['페이지']) || 0) : '',
             qty: parseQty(n['수량'] || 0),
             deliveryDate: delivStr,
             unitPrice: parseMoney(n['단가'] || 0),
@@ -240,7 +240,7 @@ window.smLoadData = function() {
             tel: (n['일반전화'] || '').toString().trim(),
             email: (n['이메일'] || '').toString().trim(),
             size: (n['사이즈'] || '').toString().trim(),
-            page: (n['페이지'] || '').toString().trim(),
+            page: (n['페이지'] !== undefined && n['페이지'] !== '') ? String(parseFloat(n['페이지']) || 0) : '',
             qty: parseQty(n['수량'] || 0),
             deliveryDate: delivStr,
             unitPrice: parseMoney(n['단가'] || 0),
@@ -368,11 +368,11 @@ function _addDashboardSalesKpi() {
       '<div class="kpi-value" style="font-size:16px;line-height:1.3;color:#ffb830;">' + topEntry[0] + '</div>' +
       '<div class="kpi-sub">' + fmtMoney(topEntry[1]) + '</div></div>';
   }
-  if (thisMonthQty > 0) {
+  if (thisMonthRows.length > 0) {
     newCards += '<div class="kpi-card purple">' +
-      '<div class="kpi-label">이달 총 수량</div>' +
-      '<div class="kpi-value" style="color:#c084fc;">' + thisMonthQty.toLocaleString() + '</div>' +
-      '<div class="kpi-sub">부 (납품)</div></div>';
+      '<div class="kpi-label">이달 발주 건수 (' + curM + '월)</div>' +
+      '<div class="kpi-value" style="color:#c084fc;">' + thisMonthRows.length.toLocaleString() + '</div>' +
+      '<div class="kpi-sub">전월 ' + prevMonthRows.length.toLocaleString() + '건</div></div>';
   }
 
   if (newCards) {
