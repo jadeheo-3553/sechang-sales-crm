@@ -55,7 +55,7 @@ function _getProductTabHTML() {
         </select>
       </div>
       <div style="padding:20px;position:relative;height:320px;"><canvas id="productPageChart"></canvas></div>
-      <div style="overflow-x:auto;overflow-y:auto;max-height:200px;"><table class="data-table" id="productPageTable"></table></div>
+      <div style="overflow-x:auto;"><table class="data-table" id="productPageTable"></table></div>
     </div>
   </div>
 
