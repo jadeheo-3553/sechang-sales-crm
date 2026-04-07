@@ -28,10 +28,11 @@ function _getProductTabHTML() {
   return `
   <div class="info-box">
     📦 <strong>제작물 분석</strong> — 사이즈, 페이지, 수량, 납품일 데이터를 활용한 제작물 패턴 분석 탭입니다.<br>
-    • <strong>사이즈별 주문 빈도</strong>: 어떤 사이즈가 가장 많이 요청되는지 파악합니다.<br>
-    • <strong>페이지 구간별 분포</strong>: 주문 페이지 구간별 빈도를 보여줍니다.<br>
-    • <strong>리드타임 분석</strong>: 발주일→납기일 평균 소요일을 거래처별로 분석합니다.<br>
-    • <strong>납품 달성률</strong>: 기한 내 납품 달성률을 월별로 보여줍니다.
+    • <strong>사이즈별 주문 빈도</strong>: 어떤 사이즈가 가장 많이 요청되는지 파악합니다. 전체 기간 또는 연도별로 조회할 수 있습니다.<br>
+    • <strong>페이지 구간별 분포</strong>: 주문 페이지 구간별 빈도를 도넛 차트로 보여줍니다.<br>
+    • <strong>리드타임 분석</strong>: 발주일→납기일 소요일을 거래처별로 분석합니다. 납기일이 입력된 건만 집계되며, 평균 납기가 짧은 순(급한 거래처 우선)으로 정렬됩니다.<br>
+    &nbsp;&nbsp;&nbsp;— 구분 태그 기준: <span style="background:rgba(255,85,119,.18);color:#ff5577;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;">급건 多</span> 평균 5일 이내 &nbsp;|&nbsp; <span style="background:rgba(255,184,48,.18);color:#ffb830;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;">단기</span> 6~10일 &nbsp;|&nbsp; <span style="background:rgba(0,212,255,.14);color:#00d4ff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;">일반</span> 11~20일 &nbsp;|&nbsp; <span style="background:rgba(58,66,96,.5);color:#b0bcdb;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;">장기</span> 21일 이상<br>
+    • <strong>납품 달성률</strong>: 발주일 기준 납기일까지 기한 내 납품된 비율을 월별 막대 차트로 보여줍니다. 초록색(90% 이상) · 노란색(70~89%) · 빨간색(70% 미만)으로 구분됩니다.
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
@@ -349,7 +350,7 @@ function initProductTab() {
   _insertProductTabHTML();
 
   // 연도 셀렉터 채우기
-  ['productSizeYear','productPageYear','leadtimeYear','salesBizYear2'].forEach(function(id) {
+  ['productSizeYear','productPageYear','leadtimeYear'].forEach(function(id) {
     var sel = document.getElementById(id);
     if (!sel) return;
     sel.innerHTML = '<option value="all">전체 기간</option>';
@@ -370,9 +371,24 @@ function initProductTab() {
   var pageYearSel = document.getElementById('productPageYear');
   if (pageYearSel) pageYearSel.addEventListener('change', productRenderPage);
 
-  // 초기 렌더링
-  productRenderSize();
-  productRenderPage();
-  productRenderLeadtime();
-  productRenderDelivery();
+  // 탭 클릭 시 재렌더링 (타이밍 문제 해결)
+  var productTabBtn = document.querySelector('[data-tab="product"]');
+  if (productTabBtn) {
+    productTabBtn.addEventListener('click', function() {
+      setTimeout(function() {
+        productRenderSize();
+        productRenderPage();
+        productRenderLeadtime();
+        productRenderDelivery();
+      }, 50);
+    });
+  }
+
+  // 초기 렌더링 (데이터 로드 완료 후 실행 보장)
+  setTimeout(function() {
+    productRenderSize();
+    productRenderPage();
+    productRenderLeadtime();
+    productRenderDelivery();
+  }, 300);
 }
