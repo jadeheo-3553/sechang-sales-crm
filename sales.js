@@ -31,13 +31,16 @@ function _getSalesTabHTML() {
   return `
   <div class="info-box">
     💰 <strong>매출 분석</strong> — 금액 데이터 기반의 매출 심층 분석 탭입니다.<br>
-    • <strong>사업장 필터</strong>: 상단 버튼으로 전체 또는 특정 사업장만 볼 수 있습니다.<br>
+    • <strong>사업장 필터</strong>: 상단 버튼으로 전체 또는 특정 사업장(수원세창, 서울세창 등)만 볼 수 있습니다.<br>
     • <strong>월별 매출 추이</strong>: 선택 연도의 월별 매출을 막대 차트로 보여줍니다.<br>
     • <strong>전년 동기 비교</strong>: 두 연도의 월별 매출을 나란히 비교합니다.<br>
-    • <strong>발주처별 매출 순위</strong>: 금액 기준 상위 거래처와 매출 집중도를 분석합니다.<br>
-    • <strong>사업장별 매출</strong>: 사업장(수원세창, 서울세창 등)별 매출 현황을 보여줍니다.<br>
-    • <strong>신규 vs 기존 거래처</strong>: 이달 매출이 어디서 왔는지 분리해서 보여줍니다.<br>
-    • <strong>재주문율</strong>: 첫 거래 후 다시 돌아온 거래처 비율을 보여줍니다.
+    • <strong>발주처별 매출 순위</strong>: 금액 기준 상위 거래처와 매출 집중도를 분석합니다. 누적비율이 붉은색으로 표시되는 구간이 매출 집중 거래처입니다.<br>
+    • <strong>사업장별 매출</strong>: 사업장별 매출 비중을 도넛 차트와 표로 보여줍니다.<br>
+    • <strong>신규 vs 기존 거래처 매출 분리</strong>: 선택 연도의 매출이 기존 거래처에서 온 것인지, 그 해 처음 거래한 신규 거래처에서 온 것인지 분리해서 보여줍니다.<br>
+    • <strong>재주문율 분석</strong>: 두 가지 지표를 보여줍니다.<br>
+    &nbsp;&nbsp;&nbsp;① <strong>재주문율</strong>: 선택 연도 이전부터 거래하던 기존 거래처 중, 선택 연도에 다시 발주한 거래처의 비율입니다. 예) 2026년 재주문율 = 2025년 이전 거래처 중 2026년에 발주한 곳의 비율.<br>
+    &nbsp;&nbsp;&nbsp;② <strong>신규→다음해 유지율</strong>: 선택 연도에 처음 거래를 시작한 신규 거래처가 다음 해에도 계속 거래하는 비율입니다. 데이터가 쌓일수록 의미 있는 수치가 됩니다.<br>
+    &nbsp;&nbsp;&nbsp;③ <strong>하단 표</strong>: 기존 거래처 목록을 매출 높은 순으로 보여주며, 선택 연도에 재거래했는지(✓ 재거래) 안 했는지(미거래)를 함께 표시합니다. 클릭하면 해당 거래처 히스토리로 이동합니다.
   </div>
 
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center;">
@@ -270,12 +273,20 @@ function salesRenderRank() {
   if (yr !== 'all') rows = rows.filter(function(r) { return r.year === parseInt(yr); });
   var clientAmt = {};
   rows.forEach(function(r) { clientAmt[r.client] = (clientAmt[r.client] || 0) + (r.totalAmount || 0); });
-  var sorted = Object.entries(clientAmt).filter(function(e) { return e[1] > 0; }).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 50);
-  var totalAmt = sorted.reduce(function(s, e) { return s + e[1]; }, 0);
+  var allSorted = Object.entries(clientAmt).filter(function(e) { return e[1] > 0; }).sort(function(a, b) { return b[1] - a[1]; });
+  // 전체 거래처 합계를 100% 기준으로 사용
+  var totalAmt = allSorted.reduce(function(s, e) { return s + e[1]; }, 0);
+  var top50 = allSorted.slice(0, 50);
+  var top50Amt = top50.reduce(function(s, e) { return s + e[1]; }, 0);
+  var top50Pct = totalAmt > 0 ? (top50Amt / totalAmt * 100).toFixed(1) : 0;
   var cumul = 0;
-  var html = '<thead><tr><th>#</th><th>발주처</th><th>매출</th><th>비율</th><th>누적비율</th></tr></thead><tbody>';
-  if (!sorted.length) { html += '<tr><td colspan="5" class="empty">금액 데이터 없음</td></tr>'; }
-  sorted.forEach(function(e, i) {
+  var html = '<thead><tr>' +
+    '<th>#</th><th>발주처</th><th>매출</th>' +
+    '<th title="전체 거래처 합계 기준 점유율">비율 <span style="font-size:11px;color:var(--text3);">(전체기준)</span></th>' +
+    '<th title="1위부터 해당 순위까지 합산한 점유율">누적비율</th>' +
+    '</tr></thead><tbody>';
+  if (!top50.length) { html += '<tr><td colspan="5" class="empty">금액 데이터 없음</td></tr>'; }
+  top50.forEach(function(e, i) {
     var pct = totalAmt > 0 ? (e[1] / totalAmt * 100).toFixed(1) : 0;
     cumul += parseFloat(pct);
     var cumulColor = cumul <= 50 ? 'var(--red)' : cumul <= 80 ? 'var(--yellow)' : 'var(--text3)';
@@ -287,6 +298,18 @@ function salesRenderRank() {
       '<td class="mono">' + pct + '%</td>' +
       '<td class="mono" style="color:' + cumulColor + '">' + cumul.toFixed(1) + '%</td></tr>';
   });
+  // 나머지 거래처 요약 행 추가
+  if (allSorted.length > 50) {
+    var restCnt = allSorted.length - 50;
+    var restAmt = totalAmt - top50Amt;
+    var restPct = totalAmt > 0 ? (restAmt / totalAmt * 100).toFixed(1) : 0;
+    html += '<tr style="background:var(--surface2);">' +
+      '<td class="mono" style="color:var(--text3)">51~</td>' +
+      '<td style="color:var(--text3);font-size:13px;">나머지 ' + restCnt.toLocaleString() + '개 거래처</td>' +
+      '<td class="mono" style="color:var(--text3)">' + fmtMoney(restAmt) + '</td>' +
+      '<td class="mono" style="color:var(--text3)">' + restPct + '%</td>' +
+      '<td class="mono" style="color:var(--text3)">100.0%</td></tr>';
+  }
   el.innerHTML = html + '</tbody>';
 }
 
